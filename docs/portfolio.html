@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tayler Erbe | Research Proposal Processing Pipeline &amp; NLP Intelligence</title>
+  <meta name="description" content="Tayler Erbe, Senior Data Scientist at the University of Illinois System, built an end-to-end research proposal processing pipeline for Sponsored Programs Administration (SPA) that ingests Kuali attachments, extracts and annotates proposal text with an NLP ensemble, and classifies work into NSF HERDS research fields — the foundation for a Research Proposal Intelligence platform across the System's ~$517M annual research portfolio." />
+  <meta name="keywords" content="Tayler Erbe, data scientist, research proposal intelligence, NLP pipeline, Kuali Research, HERDS taxonomy, KeyBERT, SentenceTransformer, Oracle, University of Illinois, Sponsored Programs" />
+  <meta name="author" content="Tayler Erbe" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://terbe2022.github.io/tayler-portfolio/research-proposal-pipeline.html" />
+  <meta property="og:title" content="Tayler Erbe | Research Proposal Processing Pipeline" />
+  <meta property="og:description" content="End-to-end NLP pipeline for research proposal intelligence at the University of Illinois System. Extracts, classifies, and annotates proposals across a ~$517M research portfolio." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://terbe2022.github.io/tayler-portfolio/research-proposal-pipeline.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Tayler Erbe | Research Proposal Processing Pipeline" />
+  <meta name="twitter:description" content="NLP and decision intelligence for sponsored research at the University of Illinois System, built by Tayler Erbe." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Research Proposal Processing Pipeline and NLP Intelligence Platform",
+    "author": { "@type": "Person", "name": "Tayler Erbe", "url": "https://terbe2022.github.io/tayler-portfolio/" },
+    "description": "End-to-end NLP pipeline built by Tayler Erbe for research proposal intelligence at the University of Illinois System, supporting Sponsored Programs Administration across a ~$517M annual research portfolio.",
+    "keywords": "Tayler Erbe, data scientist, research proposal intelligence, NLP, KeyBERT, HERDS taxonomy, University of Illinois"
+  }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #080b10;
+      --surface: #0f1318;
+      --surface2: #161c24;
+      --border: #1e2530;
+      --accent: #5bc8dc;
+      --accent2: #3a8fc4;
+      --accent3: #c07a6e;
+      --text: #d8e2ed;
+      --muted: #6b7c91;
+      --muted2: #3a4556;
+      --white: #eef3f8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 3rem;
+      background: rgba(8,11,16,0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'DM Mono', monospace; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--accent); text-decoration: none; }
+    .nav-back { font-family: 'DM Mono', monospace; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+    .nav-back:hover { color: var(--accent); }
+
+    /* HERO */
+    .hero {
+      padding: 9rem 3rem 5rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; top: -30%; right: -5%;
+      width: 50vw; height: 50vw;
+      background: radial-gradient(ellipse at center, rgba(91,200,220,0.04) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .hero-eyebrow::before { content: ''; display: block; width: 2rem; height: 1px; background: var(--accent2); }
+    .hero h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: clamp(2.8rem, 5vw, 5rem);
+      line-height: 1.0; color: var(--white);
+      letter-spacing: 0.01em; text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero-desc { font-size: 1.05rem; color: var(--muted); max-width: 68ch; line-height: 1.75; margin-bottom: 2rem; }
+
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 2rem; }
+    .meta-item {}
+    .meta-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted2); margin-bottom: 0.3rem; }
+    .meta-value { font-size: 0.9rem; color: var(--text); }
+
+    /* STAT STRIP */
+    .stat-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .stat-item { background: var(--surface); padding: 1.75rem 2rem; }
+    .stat-item:hover { background: var(--surface2); }
+    .stat-big { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 2.2rem; color: var(--accent); line-height: 1; margin-bottom: 0.3rem; }
+    .stat-desc { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+    /* SECTIONS */
+    section { padding: 4.5rem 3rem; border-bottom: 1px solid var(--border); }
+    section:last-of-type { border-bottom: none; }
+
+    .section-header { display: flex; align-items: baseline; gap: 1.5rem; margin-bottom: 3rem; }
+    .section-tag { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent2); white-space: nowrap; }
+    .section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: clamp(1.6rem, 2.5vw, 2.4rem); color: var(--white); text-transform: uppercase; letter-spacing: 0.02em; }
+    .section-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* PROSE */
+    .prose p { font-size: 0.95rem; color: var(--muted); line-height: 1.8; margin-bottom: 1rem; }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose p strong { color: var(--text); font-weight: 500; }
+
+    /* TWO-COL */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; }
+
+    /* CALLOUT CARD */
+    .callout {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent); padding: 1.5rem 1.75rem;
+      margin-top: 1.5rem;
+    }
+    .callout-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+    .callout p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+
+    /* PIPELINE STEPS */
+    .pipeline { display: flex; flex-direction: column; gap: 0; }
+    .pipeline-step {
+      display: grid; grid-template-columns: 48px 1fr;
+      gap: 1.5rem; padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border); align-items: start;
+    }
+    .pipeline-step:last-child { border-bottom: none; }
+    .step-num {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 1.8rem; color: var(--muted2); line-height: 1; padding-top: 0.1rem;
+    }
+    .step-content {}
+    .step-title { font-family: 'DM Mono', monospace; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent2); margin-bottom: 0.4rem; }
+    .step-body { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+    .step-body strong { color: var(--text); font-weight: 500; }
+
+    /* TAG CHIPS */
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+    .chip { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.25rem 0.6rem; border: 1px solid var(--border); color: var(--muted); }
+    .chip-accent { border-color: var(--accent2); color: var(--accent2); }
+
+    /* COMPONENT CARDS */
+    .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .comp-card { background: var(--surface); border: 1px solid var(--border); padding: 2rem; border-top: 3px solid var(--accent2); }
+    .comp-card.primary { border-top-color: var(--accent); }
+    .comp-header { margin-bottom: 1.25rem; }
+    .comp-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--white); text-transform: uppercase; margin-bottom: 0.3rem; }
+    .comp-sub { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent2); }
+    .comp-body p { font-size: 0.87rem; color: var(--muted); line-height: 1.65; margin-bottom: 0.8rem; }
+    .comp-body p:last-child { margin-bottom: 0; }
+    .comp-body strong { color: var(--text); font-weight: 500; }
+
+    /* DETAIL LIST (techniques, design decisions) */
+    .detail-list { display: flex; flex-direction: column; gap: 0; }
+    .detail-item {
+      display: grid; grid-template-columns: 200px 1fr;
+      gap: 1.5rem; padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-item:last-child { border-bottom: none; }
+    .detail-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.06em; color: var(--accent2); text-transform: uppercase; padding-top: 0.15rem; }
+    .detail-body { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+    .detail-body strong { color: var(--text); font-weight: 500; }
+    .detail-body code {
+      font-family: 'DM Mono', monospace; font-size: 0.8rem;
+      color: var(--accent); background: var(--surface2);
+      padding: 0.1rem 0.4rem; border: 1px solid var(--border);
+    }
+
+    /* SOURCE LIST */
+    .source-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+    .source-item { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; padding: 0.9rem 0; border-bottom: 1px solid var(--border); }
+    .source-item:last-child { border-bottom: none; }
+    .source-name { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--accent2); letter-spacing: 0.04em; }
+    .source-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.5; }
+
+    /* INSIGHT BOXES */
+    .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+    .insight-box { background: var(--surface2); border: 1px solid var(--border); padding: 1.25rem; }
+    .insight-box-title { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent2); margin-bottom: 0.5rem; }
+    .insight-box p { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+    /* TAXONOMY GRID */
+    .taxo-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.5rem; margin-top: 1rem;
+    }
+    .taxo-item {
+      font-family: 'DM Mono', monospace; font-size: 0.72rem;
+      padding: 0.55rem 0.75rem; border: 1px solid var(--border);
+      color: var(--muted); background: var(--surface);
+    }
+    .taxo-item:hover { border-color: var(--accent2); color: var(--text); }
+
+    /* CODE BLOCK */
+    .code-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent2);
+      padding: 1.25rem 1.5rem; margin-top: 1.25rem;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      font-family: 'DM Mono', monospace; font-size: 0.78rem;
+      color: var(--text); line-height: 1.6;
+    }
+    .code-comment { color: var(--muted2); }
+    .code-keyword { color: var(--accent); }
+    .code-string { color: var(--accent3); }
+
+    /* BACK LINK */
+    .back-section { padding: 3rem; text-align: center; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--muted); text-decoration: none;
+      border: 1px solid var(--border); padding: 0.85rem 2rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .back-link:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* RESPONSIVE */
+    @media (max-width: 860px) {
+      nav { padding: 1rem 1.5rem; }
+      .hero { padding: 7rem 1.5rem 3rem; }
+      section { padding: 3rem 1.5rem; }
+      .stat-strip { grid-template-columns: 1fr 1fr; }
+      .two-col, .three-col, .comp-grid, .insight-grid { grid-template-columns: 1fr; }
+      .source-item, .detail-item { grid-template-columns: 1fr; gap: 0.25rem; }
+      .back-section { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="https://terbe2022.github.io/tayler-portfolio/">TAYLER.ERBE</a>
+  <a class="nav-back" href="https://terbe2022.github.io/tayler-portfolio/">← back to portfolio</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Case Study · 2025 · University of Illinois System</div>
+  <h1>Research Proposal<br/><span>Processing Pipeline</span></h1>
+  <p class="hero-desc">
+    End-to-end NLP pipeline that converts research proposal and award PDFs from the Kuali Research system
+    into a structured, classified, analytical layer — the foundation for a Research Proposal Intelligence
+    platform supporting Sponsored Programs Administration and the System's ~$517M annual research portfolio.
+  </p>
+
+  <!-- GitHub CTA Button -->
+  <div style="margin-top: 1.75rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="https://github.com/tayler-erbe/research-proposal-pipeline"
+       target="_blank"
+       style="
+         display:inline-block;
+         font-family:'DM Mono', monospace;
+         font-size:0.75rem;
+         letter-spacing:0.08em;
+         text-transform:uppercase;
+         padding:0.75rem 1.5rem;
+         border:1px solid var(--accent);
+         color:var(--accent);
+         text-decoration:none;
+         transition: all 0.2s ease;
+       "
+       onmouseover="this.style.background='rgba(91,200,220,0.1)'"
+       onmouseout="this.style.background='transparent'">
+       View Code on GitHub →
+    </a>
+  </div>
+
+  <!-- Metadata -->
+  <div class="hero-meta">
+    <div class="meta-item">
+      <div class="meta-label">Institution</div>
+      <div class="meta-value">University of Illinois System</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Partner</div>
+      <div class="meta-value">Sponsored Programs Administration (SPA)</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Status</div>
+      <div class="meta-value">In Production · Intelligence Platform Emerging</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Role</div>
+      <div class="meta-value">Senior Data Scientist · Lead Engineer</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Code</div>
+      <div class="meta-value">
+        <a href="https://github.com/tayler-erbe/research-proposal-pipeline"
+           target="_blank"
+           style="color: var(--accent); text-decoration: none;">
+           GitHub Repository →
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STAT STRIP -->
+<div class="stat-strip">
+  <div class="stat-item">
+    <div class="stat-big">~$517M</div>
+    <div class="stat-desc">Annual Research Portfolio</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-big">26</div>
+    <div class="stat-desc">HERDS Taxonomy Fields Classified</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-big">3-way</div>
+    <div class="stat-desc">Keyword Extraction Ensemble</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-big">Idempotent</div>
+    <div class="stat-desc">Anti-Join Change Detection</div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="section-header">
+    <span class="section-tag">01</span>
+    <h2 class="section-title">Project Overview</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="two-col">
+    <div class="prose">
+      <p>Universities collect enormous volumes of research-proposal content — narratives, scopes of work, budget justifications — but the material lives as unstructured PDF attachments inside a grants-management system. Decision makers in Sponsored Programs Administration can see <em>that</em> a proposal was submitted, but not <em>what</em> the proposal was actually about in any way a database can answer.</p>
+      <p>This project closes that gap. The pipeline ingests proposal and award attachments from Kuali Research, runs them through a structured NLP pathway, and produces an analytical layer where every proposal carries extracted keywords, an entity profile, and a predicted classification against the <strong>NSF HERDS research-field taxonomy</strong> — the same taxonomy used for federal research-activity reporting.</p>
+      <p>I scoped, designed, and built the pipeline end-to-end: Oracle integration across two security zones, PDF text extraction with format validation, a three-way keyword extraction ensemble, a sentence-transformer-based classifier, and the three-stage staging-table design that makes the output queryable by analysts without exposing the intermediate text.</p>
+      <blockquote style="border-left:3px solid var(--accent); padding-left:1.25rem; margin:1.5rem 0 0;">
+        <p style="font-style:italic; color:var(--text); font-size:0.92rem; line-height:1.7;">This pipeline represents the first phase of a broader Research Proposal Intelligence partnership — moving from descriptive reporting of what was funded toward predictive understanding of <em>why</em>, so strategy decisions can be informed by the full text of what researchers actually proposed.</p>
+        <p style="font-family:'DM Mono',monospace; font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-top:0.6rem;">Project framing · AITS / SPA partnership, 2025</p>
+      </blockquote>
+    </div>
+    <div>
+      <div class="callout">
+        <div class="callout-label">Institutional Impact</div>
+        <p>Every proposal and award in the University of Illinois System now carries a structured NLP annotation — keywords, entities, and HERDS field classification — that makes unstructured proposal content queryable for the first time. Outputs feed analyst dashboards and lay the foundation for a Research Proposal Intelligence platform.</p>
+      </div>
+      <div class="callout" style="border-left-color: var(--accent2); margin-top: 1rem;">
+        <div class="callout-label" style="color: var(--accent2);">Two Parallel Pipelines</div>
+        <p><strong style="color:var(--text)">Proposals:</strong> submitted proposal attachments, classified by research field and annotated for downstream analytics. Rebuilds the governance filter that gates which proposals enter production.<br/><br/><strong style="color:var(--text)">Awards:</strong> funded award attachments, annotated the same way, producing the success-labeled corpus that future predictive work will train on.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUSINESS FRAMING -->
+<section id="why">
+  <div class="section-header">
+    <span class="section-tag">02</span>
+    <h2 class="section-title">Why It Matters</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="two-col">
+    <div class="prose">
+      <p>The University of Illinois System manages roughly $517M in annual research funding. Small marginal improvements in how proposals are strategized, positioned, and supported translate into millions of dollars in additional direct research funding — and further millions in indirect cost recovery that sustains core institutional operations.</p>
+      <p>Until now, leadership could answer financial and operational questions about the portfolio (who submitted, what was funded, by which sponsor) but not analytical ones about the <strong>content</strong> of the work. The questions that matter for strategy — <em>which research areas are our strongest submissions in, where are we underperforming relative to our capacity, which sponsors align with which kinds of proposals</em> — all require the proposal text itself as a structured input.</p>
+      <p>This pipeline is the data infrastructure that makes those questions answerable. Every proposal carries a consistent, machine-generated summary of its research content, and every award carries the same. Paired with existing financial and administrative data, the combined layer supports descriptive analytics today and LLM-driven feature extraction tomorrow.</p>
+    </div>
+    <div>
+      <div class="insight-grid" style="margin-top: 0;">
+        <div class="insight-box">
+          <div class="insight-box-title">Before</div>
+          <p>Proposals visible only as financial records. Content locked in PDF attachments. Strategic questions about research mix answered anecdotally, if at all.</p>
+        </div>
+        <div class="insight-box">
+          <div class="insight-box-title">After</div>
+          <p>Every proposal and award carries extracted keywords, entities, and a HERDS field classification. Content is queryable in Oracle alongside existing financial data.</p>
+        </div>
+        <div class="insight-box">
+          <div class="insight-box-title">Decision Intelligence</div>
+          <p>Common thread with prior work: analytics and AI for institutional planning — not just operations. Builds directly on the Legislation LLM Feature Extraction methodology.</p>
+        </div>
+        <div class="insight-box">
+          <div class="insight-box-title">Emerging Platform</div>
+          <p>First phase of a Research Proposal Intelligence partnership. Infrastructure in place; next phase layers LLM-driven extraction and predictive modeling on top.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="section-header">
+    <span class="section-tag">03</span>
+    <h2 class="section-title">Architecture</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="prose" style="max-width: 80ch; margin-bottom: 2rem;">
+    <p>The pipeline spans <strong>two Oracle databases</strong> in different security zones — the Kuali Research source of truth and the analytics warehouse — with no dblink between them. Change detection is computed in Python via anti-join, which keeps the network boundary intact and makes the pipeline trivially re-runnable.</p>
+    <p>Processing is organized as <strong>service modules</strong> (one responsibility each — text cleaning, keyword extraction, HERDS classification, entity extraction, etc.) orchestrated by thin pipeline controllers. The output is three staging tables serving three audiences: raw-text for auditing, NLP-annotated for engineering, production-aggregated for analysts.</p>
+  </div>
+
+  <div class="pipeline">
+    <div class="pipeline-step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <div class="step-title">Change Detection · Anti-Join in Python</div>
+        <div class="step-body">Queries Kuali for all current proposal/award attachment IDs, queries the analytics staging tables for already-processed IDs, computes the delta in memory. <strong>No dblink between security zones.</strong> The delta is the work queue.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <div class="step-title">BLOB Retrieval · Batched Oracle Pull</div>
+        <div class="step-body">Downloads attachment BLOBs from Kuali in batches with chunked CLOB handling. <code>setinputsizes(CONTENT=oracledb.CLOB)</code> binding avoids ORA-01461 on large payloads.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <div class="step-title">Text Extraction · PDF with Magic-Byte Validation</div>
+        <div class="step-body">PyMuPDF extraction with a magic-byte validator that catches DOCX files misnamed as <code>.pdf</code> — a real pattern in the source system. Invalid payloads are tagged and routed out instead of crashing the batch.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <div class="step-title">Cleaning · Vocabulary-Backed Filter</div>
+        <div class="step-body">Text is normalized and filtered against a pre-cached <strong>~500K-word vocabulary</strong> — NLTK words ∪ WordNet lemmas, blended with <code>wordfreq</code> zipf-frequency thresholds for modern terminology the static dictionaries miss. A separate removal list strips budget boilerplate, place names, and common PI-name artifacts that would otherwise dominate keyword extraction.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">05</div>
+      <div class="step-content">
+        <div class="step-title">Keyword Extraction · Three-Way Ensemble</div>
+        <div class="step-body">Each method captures a different kind of signal, so the pipeline runs all three and reconciles: <strong>TF-IDF</strong> for term rarity, <strong>KeyBERT with MMR diversity=0.5</strong> for semantic relevance with coverage, and <strong>LDA</strong> for latent topic structure. KeyBERT's embedding is shared with the HERDS classifier to keep memory bounded.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">06</div>
+      <div class="step-content">
+        <div class="step-title">HERDS Classification · Semantic + Keyword Blend</div>
+        <div class="step-body">Each proposal is embedded with the same SentenceTransformer used by KeyBERT, then matrix-multiplied against a pre-computed taxonomy-embedding matrix (<strong>26 HERDS fields, one matrix op</strong>). The semantic score is blended <code>0.75 / 0.25</code> with a keyword-overlap score against curated taxonomy-keyword lists; a <code>MIN_SCORE_THRESHOLD</code> of 0.12 gates the final label.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">07</div>
+      <div class="step-content">
+        <div class="step-title">Entity Extraction · spaCy NER Profile</div>
+        <div class="step-body">Named entities extracted per proposal — organizations, people, locations — producing an entity profile column used downstream for sponsor-alignment analysis and collaboration graphs.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">08</div>
+      <div class="step-content">
+        <div class="step-title">Write · Three Staging Tables, MERGE Semantics</div>
+        <div class="step-body">Writes to <strong>three staging tables</strong> serving three audiences: raw-text (engineering audit), NLP-annotated (downstream ML), and production-aggregated (analyst-facing view). Every write is idempotent (<code>INSERT … WHERE NOT EXISTS</code> or <code>MERGE</code>), post-write row counts are verified, and rollback SQL is printed on every successful run.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">09</div>
+      <div class="step-content">
+        <div class="step-title">Governance Filter Rebuild</div>
+        <div class="step-body">Rebuilds the filter table that gates which proposals enter the production analytics view, joining Kuali proposal / EPS / admin-details tables. Join handles a data-quality quirk — proposal numbers stored zero-padded as strings on one side and as integers on the other — via <code>TO_NUMBER</code> on the padded column.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">10</div>
+      <div class="step-content">
+        <div class="step-title">Structured Logging · Parquet to Monitor</div>
+        <div class="step-body">Every stage logs through a canonical <code>PipelineLogger</code> whose parquet output is consumed by a separate job-execution monitor. A human-readable text log is produced in parallel.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HERDS TAXONOMY -->
+<section id="taxonomy">
+  <div class="section-header">
+    <span class="section-tag">04</span>
+    <h2 class="section-title">The HERDS Taxonomy</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="two-col">
+    <div class="prose">
+      <p>HERDS — the NSF <strong>Higher Education Research and Development Survey</strong> — is the taxonomy universities use to report federal research activity. Classifying proposals against it has a real-world anchor: it matches the categories leadership already reports on.</p>
+      <p>I built a 26-field taxonomy with a curated keyword list per field, deduplicated so no keyword appears in more than one field (which would confuse the keyword-overlap signal). Overlaps were adjudicated per-keyword: <em>optimization</em> moved to Mathematics &amp; Statistics, <em>thermodynamics</em> to Physics, <em>policy</em> to Political Science, and so on — eight reassignments in total — following the principle that each term should belong where it originates methodologically, not where it's applied.</p>
+      <p>The taxonomy embeddings are built once and cached to disk. The classifier performs a single matrix multiplication against all 26 fields per proposal rather than 26 separate similarity queries.</p>
+    </div>
+    <div>
+      <div class="callout-label" style="color: var(--accent2); margin-bottom: 0.75rem;">Classified fields</div>
+      <div class="taxo-grid">
+        <div class="taxo-item">Agricultural Sciences</div>
+        <div class="taxo-item">Anthropology</div>
+        <div class="taxo-item">Architecture &amp; Design</div>
+        <div class="taxo-item">Astronomy</div>
+        <div class="taxo-item">Biological Sciences</div>
+        <div class="taxo-item">Chemistry</div>
+        <div class="taxo-item">Civil Engineering</div>
+        <div class="taxo-item">Communication</div>
+        <div class="taxo-item">Computer Science</div>
+        <div class="taxo-item">Earth Sciences</div>
+        <div class="taxo-item">Economics</div>
+        <div class="taxo-item">Education</div>
+        <div class="taxo-item">Electrical Engineering</div>
+        <div class="taxo-item">Industrial Engineering</div>
+        <div class="taxo-item">Law</div>
+        <div class="taxo-item">Mathematics &amp; Statistics</div>
+        <div class="taxo-item">Mechanical Engineering</div>
+        <div class="taxo-item">Medical Sciences</div>
+        <div class="taxo-item">Natural Resources</div>
+        <div class="taxo-item">Nursing</div>
+        <div class="taxo-item">Philosophy</div>
+        <div class="taxo-item">Physics</div>
+        <div class="taxo-item">Political Science</div>
+        <div class="taxo-item">Psychology</div>
+        <div class="taxo-item">Public Health</div>
+        <div class="taxo-item">Sociology</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KEY DESIGN DECISIONS -->
+<section id="decisions">
+  <div class="section-header">
+    <span class="section-tag">05</span>
+    <h2 class="section-title">Key Design Decisions</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="prose" style="margin-bottom: 2rem; max-width: 80ch;">
+    <p>A handful of decisions shaped the pipeline far more than the individual algorithms. These are the ones worth surfacing for anyone reading the code.</p>
+  </div>
+  <div class="detail-list">
+    <div class="detail-item">
+      <div class="detail-label">Shared Transformer</div>
+      <div class="detail-body">KeyBERT and the HERDS classifier both need a sentence encoder. Loading two copies of <code>all-MiniLM-L6-v2</code> costs ~500MB of RAM and 30 seconds of startup for no benefit, so a single instance is constructed once and passed into both services. Small change, big win on memory-constrained runs.</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Anti-Join Over Dblink</div>
+      <div class="detail-body">Kuali and the analytics warehouse live in different security zones. Rather than chase a cross-zone database link (operationally expensive, policy-sensitive), change detection is computed in Python: pull both ID sets, diff in a set operation, use the delta as the work queue. This also means the pipeline can run from anywhere with credentials to both sides.</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Ensemble over Single Method</div>
+      <div class="detail-body">No single keyword method is right for proposal text. TF-IDF rewards rarity but surfaces noise; KeyBERT gives semantic relevance but can cluster around the same idea; LDA captures latent topic structure but drifts on short documents. Running all three and reconciling produces a keyword set noticeably more useful than any one method alone.</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">0.75 / 0.25 Blend</div>
+      <div class="detail-body">The HERDS classifier blends a semantic-similarity score with a keyword-overlap score at a 0.75 / 0.25 ratio. Semantic dominates because taxonomy definitions are abstract and the embedding captures that; keyword overlap contributes a calibration signal for when taxonomy-specific vocabulary is actually present. Blending outperforms either signal alone on the validation set.</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Three Staging Tables</div>
+      <div class="detail-body">Raw-text, NLP-annotated, and production-aggregated staging tables serve three different audiences and make debugging tractable. Engineering can trace any row in the production view back through its NLP annotations back to the original extracted text. Analysts only see the production view.</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Idempotency by Construction</div>
+      <div class="detail-body">Every insert is <code>WHERE NOT EXISTS</code> or <code>MERGE</code>. Re-running the pipeline on an already-processed batch is a no-op. The one exception — the production TRUNCATE — is double-gated behind <code>dry_run=False</code> AND <code>confirm_production=True</code> flags that must both be set explicitly.</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Rollback SQL Inline</div>
+      <div class="detail-body">Every successful run prints the exact SQL that would undo it — row counts, IDs, the whole cleanup sequence. Recovery doesn't require reading code.</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Magic-Byte Validation</div>
+      <div class="detail-body">A non-trivial number of <code>.pdf</code> attachments in the source system are actually DOCX files with the wrong extension. PyMuPDF raises on these. A four-byte magic-number check up front catches them, and they're routed to a rejection bucket with a reason code instead of crashing the batch.</div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA SOURCES -->
+<section id="sources">
+  <div class="section-header">
+    <span class="section-tag">06</span>
+    <h2 class="section-title">Data Sources</h2>
+    <div class="section-line"></div>
+  </div>
+  <ul class="source-list">
+    <li class="source-item">
+      <div class="source-name">KUALI.ATTACHMENTS</div>
+      <div class="source-desc">Proposal BLOBs (primarily PDF, with DOCX stragglers) from the Kuali Research grants management system. The canonical source of proposal content.</div>
+    </li>
+    <li class="source-item">
+      <div class="source-name">KUALI.PROPOSAL / EPS_PROPOSAL</div>
+      <div class="source-desc">Proposal metadata — proposal numbers, submission status, investigator assignments, administrative lineage. Used to rebuild the governance filter that determines which proposals enter the production view.</div>
+    </li>
+    <li class="source-item">
+      <div class="source-name">KUALI.AWARDS / AWARD_ATTACHMENTS</div>
+      <div class="source-desc">Funded-award records and their attachments. The success-labeled counterpart to the proposal corpus.</div>
+    </li>
+    <li class="source-item">
+      <div class="source-name">ANALYTICS staging tables</div>
+      <div class="source-desc">Three pipeline outputs: raw-text staging, NLP-annotated staging, and production-aggregated staging. The production staging table is what analyst dashboards query.</div>
+    </li>
+    <li class="source-item">
+      <div class="source-name">HERDS taxonomy (curated)</div>
+      <div class="source-desc">26 research fields from the NSF Higher Education Research and Development Survey, each with a curated, deduplicated keyword list. Committed to the repository as <code>data/herds_taxonomy.py</code>.</div>
+    </li>
+    <li class="source-item">
+      <div class="source-name">Vocabulary cache</div>
+      <div class="source-desc">~500K-word English vocabulary: NLTK words ∪ WordNet lemmas, filtered by <code>wordfreq</code> zipf threshold for modern terminology. Built once by <code>scripts/build_vocab_cache.py</code> and serialized to disk.</div>
+    </li>
+  </ul>
+</section>
+
+<!-- TECH STACK -->
+<section id="stack">
+  <div class="section-header">
+    <span class="section-tag">07</span>
+    <h2 class="section-title">Technology Stack</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="three-col">
+    <div>
+      <div class="callout-label" style="color: var(--accent); margin-bottom: 0.75rem;">Data &amp; Storage</div>
+      <div class="tag-row" style="margin-top: 0;">
+        <span class="chip chip-accent">Oracle</span>
+        <span class="chip chip-accent">python-oracledb</span>
+        <span class="chip chip-accent">SQL</span>
+        <span class="chip chip-accent">Parquet</span>
+        <span class="chip chip-accent">Pandas</span>
+      </div>
+    </div>
+    <div>
+      <div class="callout-label" style="color: var(--accent); margin-bottom: 0.75rem;">NLP &amp; ML</div>
+      <div class="tag-row" style="margin-top: 0;">
+        <span class="chip chip-accent">sentence-transformers</span>
+        <span class="chip chip-accent">KeyBERT</span>
+        <span class="chip chip-accent">scikit-learn</span>
+        <span class="chip chip-accent">gensim (LDA)</span>
+        <span class="chip chip-accent">spaCy</span>
+        <span class="chip chip-accent">NLTK</span>
+        <span class="chip chip-accent">wordfreq</span>
+        <span class="chip chip-accent">all-MiniLM-L6-v2</span>
+      </div>
+    </div>
+    <div>
+      <div class="callout-label" style="color: var(--accent); margin-bottom: 0.75rem;">Infrastructure</div>
+      <div class="tag-row" style="margin-top: 0;">
+        <span class="chip chip-accent">Python 3.12</span>
+        <span class="chip chip-accent">PyMuPDF</span>
+        <span class="chip chip-accent">PyYAML</span>
+        <span class="chip chip-accent">Jupyter</span>
+        <span class="chip chip-accent">Linux</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="section-header">
+    <span class="section-tag">08</span>
+    <h2 class="section-title">What's Next</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="two-col">
+    <div class="prose">
+      <p>This pipeline is the infrastructure layer. The intelligence layer on top of it is where the business value compounds.</p>
+      <p><strong>Phase 2: LLM feature extraction.</strong> Move from keyword-level summaries to structured-field extraction — research aims, hypotheses, proposed methodologies, collaboration structures — using the same methodology I developed for Legislation LLM Feature Extraction. Each proposal yields a structured record that joins cleanly to the financial layer.</p>
+      <p><strong>Phase 3: Predictive modeling.</strong> With the combined content-plus-outcome corpus, model the characteristics associated with funding success. Identify where the System is strong relative to the national field, where it's underperforming relative to its own capacity, and which sponsor–research-area combinations are the highest-leverage strategic targets.</p>
+      <p><strong>Phase 4: Decision interface.</strong> Surface the insights to SPA and research-administration leadership through dashboards and retrieval interfaces, supporting proposal-strategy decisions at the point of drafting — not months later in a retrospective report.</p>
+    </div>
+    <div>
+      <div class="callout" style="margin-top: 0;">
+        <div class="callout-label">The Larger Thread</div>
+        <p>Decision intelligence for institutional planning and strategy — not just operations. This project extends the same pattern as my UIC enrollment work and the legislative analysis platform: take a high-stakes, content-heavy domain where leadership currently decides on intuition, and build the data infrastructure that lets them decide on evidence.</p>
+      </div>
+      <div class="callout" style="border-left-color: var(--accent3); margin-top: 1rem;">
+        <div class="callout-label" style="color: var(--accent3);">Scale Note</div>
+        <p>At a ~$517M annual research portfolio, marginal improvements in proposal strategy translate into millions of dollars of additional direct funding — plus further millions in indirect cost recovery that sustains core institutional operations. The return on getting this right is measured in research programs, not percentage points.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REPO STRUCTURE -->
+<section id="repo">
+  <div class="section-header">
+    <span class="section-tag">09</span>
+    <h2 class="section-title">Repository Layout</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="prose" style="margin-bottom: 2rem; max-width: 80ch;">
+    <p>The repository contains the production implementation scrubbed of credentials and infrastructure specifics. Source paths, schema names, and service accounts are parameterized through <code>configs/database.yaml</code> (excluded from version control; a <code>.example</code> template is committed).</p>
+  </div>
+  <div class="code-block">
+<pre><span class="code-keyword">research-proposal-pipeline/</span>
+├── configs/              <span class="code-comment"># YAML configuration + loader (database.yaml gitignored)</span>
+├── ingestion/            <span class="code-comment"># Oracle connection, BLOB fetch, change detection</span>
+├── orchestration/        <span class="code-comment"># Pipeline controllers — proposals, awards, NLP</span>
+├── services/             <span class="code-comment"># Single-responsibility NLP + DB service modules</span>
+│   ├── text_cleaning_service.py
+│   ├── text_filter_service.py
+│   ├── text_extraction_service.py
+│   ├── keyword_service.py              <span class="code-comment"># TF-IDF + KeyBERT + LDA ensemble</span>
+│   ├── herds_classification_service.py <span class="code-comment"># Semantic + keyword blend</span>
+│   ├── entity_extraction_service.py
+│   ├── change_detection_service.py
+│   ├── table_build_service.py
+│   ├── metanode_service.py             <span class="code-comment"># Governance filter rebuild</span>
+│   └── ...
+├── utils/                <span class="code-comment"># Batching, logging, file helpers</span>
+├── data/
+│   └── herds_taxonomy.py <span class="code-comment"># 26 fields, deduplicated keyword lists</span>
+├── scripts/              <span class="code-comment"># Vocabulary cache builder, schema inspector</span>
+├── notebooks/
+│   └── main.ipynb        <span class="code-comment"># Pipeline entry point / exploratory harness</span>
+├── main.py               <span class="code-comment"># Same pipeline, script form</span>
+├── docs/
+│   ├── architecture.md
+│   ├── roadmap.md
+│   └── portfolio.html    <span class="code-comment"># This page</span>
+└── README.md</pre>
+  </div>
+</section>
+
+<!-- BACK -->
+<div class="back-section">
+  <a class="back-link" href="https://terbe2022.github.io/tayler-portfolio/">← back to portfolio</a>
+</div>
+
+</body>
+</html>
