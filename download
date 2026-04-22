@@ -1,0 +1,41 @@
+# ── CRITICAL: never commit real credentials ─────────────────────────
+configs/database.yaml
+
+# ── Data artifacts (regenerated locally, not version-controlled) ────
+data/real_word_vocab.pkl
+data/*.parquet
+data/models/
+
+# ── Pipeline runtime storage ─────────────────────────────────────────
+storage/
+!storage/cache/.gitkeep
+
+# ── Python ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Virtual envs ────────────────────────────────────────────────────
+venv/
+env/
+.venv/
+.env
+
+# ── Jupyter ─────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── IDE / OS ────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ── Packaging ───────────────────────────────────────────────────────
+*.egg-info/
+dist/
+build/

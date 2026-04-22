@@ -1,0 +1,33 @@
+# Core
+pandas==2.2.2
+numpy==1.26.4
+pyarrow==15.0.2
+
+# Database
+oracledb==2.2.1
+
+# PDF processing
+pypdf==4.2.0
+
+# NLP
+nltk==3.8.1
+spacy==3.7.5
+wordfreq==3.1.1
+
+# ML / keyword extraction
+scikit-learn==1.4.2
+sentence-transformers==2.7.0
+keybert==0.8.5
+
+# Utilities
+tqdm==4.66.4
+charset-normalizer==3.3.2
+pyyaml==6.0.1
+
+# ── Removed from production requirements ─────────────────────────────
+# rake-nltk  — original pipeline's RAKE step; superseded by KeyBERT.
+#              The DB column is still named RAKE_OUT (schema predates
+#              the switch) but KeyBERT is what writes to it.
+# scispacy   — biomedical NLP model; removed because the model install
+#              path wasn't reliably available across environments and
+#              wordfreq's zipf_frequency check handles the same terms.
