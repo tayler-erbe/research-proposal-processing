@@ -1,0 +1,11 @@
+# NLP method selection. keyword_method/topic_model are read by legacy
+# code paths; the current pipeline runs TF-IDF + KeyBERT + LDA as an
+# ensemble regardless of these values. Left in place for config-driven
+# future single-method runs.
+
+keyword_method: rake
+topic_model: lda
+
+stopword_files:
+  - stopwords/common.txt
+  - stopwords/budget_terms.txt

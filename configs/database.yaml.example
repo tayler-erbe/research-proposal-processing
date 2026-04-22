@@ -1,0 +1,23 @@
+# Copy this file to database.yaml and fill in real values.
+# database.yaml is gitignored — never commit real credentials.
+#
+# Both Oracle databases are accessed with the same service account
+# in the real deployment. If your environment uses separate accounts,
+# move the credentials blocks under each database stanza.
+
+oracle:
+  credentials:
+    username: <readonly_service_account>
+    password: <password>
+
+  # Staging/analytics DB — where processed output is written.
+  dsstag:
+    host:    <dsstag-oracle-host>
+    port:    1521
+    service: <DSSTAG_SERVICE_NAME>
+
+  # Kuali Research DB — source system for proposals and awards.
+  kuali:
+    host:    <kuali-oracle-host>
+    port:    1521
+    service: <KUALI_SERVICE_NAME>
