@@ -1,0 +1,12 @@
+chunk_size: 500
+
+temp_storage_path: storage/temp_storage/
+
+text_min_length: 150
+
+delete_temp_files: true
+
+storage:
+  pdf_dir:    storage/temp_pdfs
+  text_dir:   storage/extracted_text
+  tables_dir: storage/intermediate_tables
