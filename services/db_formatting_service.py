@@ -82,3 +82,4 @@ def clean_dataframe(df):
         df["CONTENT_TYPE"] = df["CONTENT_TYPE"].fillna("application/pdf")
 
     return df
+

@@ -166,3 +166,4 @@ def save_awards_intermediate_table(df: pd.DataFrame, intermediate_dir: Path):
     df.to_parquet(out_path, index=False)
     print(f"[awards_table_build] Saved → {out_path.name}")
     return out_path
+

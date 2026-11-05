@@ -302,3 +302,4 @@ def build_staging_tables(intermediate_dir: Path):
         "staging2": staging2,
         "staging3": staging3,
     }
+

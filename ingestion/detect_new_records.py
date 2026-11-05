@@ -75,3 +75,4 @@ def write_ids_to_csv(ids, path):
         writer.writerow(["ID"])
         for id_val in sorted(ids):
             writer.writerow([id_val])
+

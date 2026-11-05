@@ -133,3 +133,4 @@ def run_awards_pipeline():
   WHERE UPDATE_TIMESTAMP >= TRUNC(SYSDATE);
 """)
     print("=" * 60)
+

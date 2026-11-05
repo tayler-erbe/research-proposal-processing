@@ -13,3 +13,4 @@ def normalize_guid(x):
     if pd.isna(x):
         return ""
     return str(x).strip().lower()
+

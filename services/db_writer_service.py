@@ -710,3 +710,4 @@ def run_db_writer(intermediate_dir: Path, dry_run: bool = True,
     print(f" DB WRITER COMPLETE — {mode}")
     print(f" Finished: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*60}\n")
+

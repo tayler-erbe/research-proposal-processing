@@ -1,0 +1,3 @@
+# Only needed for --pdf; synthetic JSON demonstration uses the standard library.
+# Matches the source project's recorded PDF dependency.
+pypdf==4.2.0

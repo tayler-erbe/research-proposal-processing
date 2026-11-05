@@ -66,3 +66,4 @@ def fetch_pdf_batch(conn, ids):
 
     print(f"\nDownloaded {len(saved_files)} PDFs to {PDF_DIR}")
     return saved_files
+

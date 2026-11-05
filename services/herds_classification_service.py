@@ -235,3 +235,4 @@ def assign_herds_top3(text):
         return None
     labels = [str(m[1]).strip().replace(" ", "_").lstrip("_") for m in top_n if m[1]]
     return ",".join(labels) if labels else None
+

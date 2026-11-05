@@ -103,3 +103,4 @@ def build_final_table():
     print(FINAL_TABLE_FILE)
 
     return merged
+

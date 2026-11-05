@@ -29,3 +29,4 @@ def extract_entities(text):
     entities = list(sorted(set(entities)))
 
     return entities
+

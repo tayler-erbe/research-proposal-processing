@@ -33,3 +33,4 @@ def oracle_conn(host, port, service, user, password):
     finally:
         if conn:
             conn.close()
+

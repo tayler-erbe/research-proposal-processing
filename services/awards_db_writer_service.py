@@ -151,3 +151,4 @@ def run_awards_db_writer(
         cursor.close()
 
     print(f"[awards_db_writer] Complete — {inserted} rows processed into {FULL_TABLE}")
+

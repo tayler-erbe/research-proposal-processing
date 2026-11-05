@@ -71,3 +71,4 @@ def fetch_awards_pdf_batch(conn, ids, output_dir=None):
 
     print(f"\nDownloaded {len(saved_files)} award PDFs")
     return saved_files
+

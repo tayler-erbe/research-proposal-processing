@@ -84,3 +84,4 @@ def get_new_awards_document_ids():
     print(f"[change_detection] New unprocessed awards: {len(new_ids)}")
 
     return new_ids, new_df
+

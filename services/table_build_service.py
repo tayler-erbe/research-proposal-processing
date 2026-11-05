@@ -83,3 +83,4 @@ def classify_document_type(module_title):
     if any(x in title for x in ["PROPOSAL", "FINAL", "SUBMITTED", "REVIEWED"]):
         return "PROPOSAL"
     return "OTHER"
+

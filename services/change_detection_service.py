@@ -103,3 +103,4 @@ def get_new_document_ids():
     ]
 
     return new_ids, kuali_metadata_df
+

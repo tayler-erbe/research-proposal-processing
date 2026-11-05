@@ -14,3 +14,4 @@ def load_config(file_name="config.yaml"):
     path = BASE_DIR / file_name
     with open(path, "r") as f:
         return yaml.safe_load(f)
+

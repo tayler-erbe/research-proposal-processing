@@ -80,3 +80,4 @@ def upsert_nlp_results(df, conn):
     conn.commit()
 
     print(f"Upserted {len(data)} rows into NLP table")
+

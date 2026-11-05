@@ -535,3 +535,4 @@ if __name__ == "__main__":
     print(f"\nFull schema ({len(df.columns)} columns):")
     print(sorted(df.columns.tolist()))
     print(f"\nLog written to: {TEST_LOG_DIR / 'pipeline_log.parquet'}")
+

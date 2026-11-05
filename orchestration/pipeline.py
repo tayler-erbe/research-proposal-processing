@@ -119,3 +119,4 @@ def run_pipeline():
   TRUNCATE TABLE ANALYTICS.T_KC_PRPSL_ABST_KYWD;
 """)
     print("=" * 60)
+

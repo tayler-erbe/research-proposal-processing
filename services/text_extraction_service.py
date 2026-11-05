@@ -123,3 +123,4 @@ def process_pdf_folder(pdf_dir=None, text_dir=None):
 
     pdf_metadata_df = pd.DataFrame(metadata_rows)
     return text_records, pdf_metadata_df
+

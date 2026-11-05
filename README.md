@@ -1,5 +1,18 @@
 # Research Proposal Processing Pipeline
 
+## Safe offline quick start
+
+```sh
+git clone https://github.com/tayler-erbe/research-proposal-processing.git
+cd research-proposal-processing
+python demo.py --query "imaging reporting"
+```
+
+The synthetic JSON example requires Python 3.10+ and no packages, credentials or model downloads. It demonstrates lexical keywords and literal page evidence, not the full production NLP or planned AI platform. See [the offline-demo guide](docs/OFFLINE_DEMO.md) for optional PDF support and tests. Internal project plans, deployment details, real documents and profiles are not included.
+
+The production entry points below are for code review by authorized operators: they clear working folders and perform live database writes. They are not the demo.
+
+
 End-to-end document processing pipeline that converts research proposal and award PDFs stored in the university's Kuali Research system into a structured, NLP-annotated analytical layer. Built at the University of Illinois System in partnership with Sponsored Programs Administration (SPA) to support research-funding decision intelligence across the System's ~$517M annual research portfolio.
 
 This repository contains the production implementation — scrubbed of credentials and infrastructure specifics — plus a narrative case study in `docs/portfolio.html`.
@@ -19,7 +32,7 @@ Every run, the pipeline:
 7. **Writes three staging tables** (raw text, NLP-annotated, production-aggregated) plus rebuilds a governance filter table that gates which proposals enter the production analytics view
 8. **Logs everything** through a canonical `PipelineLogger` whose parquet output is consumed by a separate job execution monitor
 
-The pipeline is idempotent: re-running does no harm. Change detection filters the delta, and every DB write is a MERGE (except the single production TRUNCATE, which is double-gated behind `dry_run=False` AND `confirm_production=True`).
+Change detection and MERGE operations are intended to support incremental processing. End-to-end retry safety is not established by this repository: production replacement operations, intermediate-file cleanup and partial failures need an operator-reviewed recovery procedure.
 
 ---
 
@@ -179,11 +192,11 @@ jupyter notebook notebooks/main.ipynb
 python main.py
 ```
 
-Both entry points do the same thing: clear storage, run proposal ingestion, run NLP, write to the DB, run awards ingestion, write to the DB. Every stage is idempotent and logs through the `PipelineLogger`.
+Both production entry points clear storage, run proposal ingestion and NLP, and perform database writes for proposals and awards. They log through `PipelineLogger`. Do not use these entry points as an offline demonstration or assume a failed run can safely be repeated.
 
 ### Dry-run the DB writer
 
-The DB writer always defaults to `dry_run=True`. To inspect what would be written without touching the DB:
+The DB writer always defaults to `dry_run=True`. This is not an offline mode: the captured writer connects to the database and performs reads even in dry-run. Review it against an isolated destination before use:
 
 ```python
 from services.db_writer_service import run_db_writer
@@ -204,7 +217,7 @@ Set `dry_run=False, confirm_production=True` only after verifying the dry-run ou
 
 **Change detection in Python, not a dblink.** The Kuali DB and the analytics DB sit in different security zones. Setting up a dblink would have required a multi-month security review. Pulling both ID sets into memory and diffing in pandas takes ~1 second for millions of IDs and requires no cross-environment infrastructure.
 
-**Idempotent writes.** Every DB write is a MERGE keyed on a natural primary key. Re-running the pipeline over the same batch produces identical output — no duplicate rows, no partial-state surprises. The one TRUNCATE (production table) is double-gated and prints rollback SQL on every successful run.
+**Incremental writes and recovery.** MERGE operations use natural keys, but production replacement operations and partial failures require separate validation. Printed rollback SQL is historical guidance, not a tested recovery procedure; database changes cannot be undone merely by reverting a Git commit.
 
 **Defensive Oracle diagnostics.** The change-detection step prints the connected user, DB name, current schema, and table visibility before running the real query. After getting bitten once by a schema-switch silently pulling the wrong table, these three-lines-of-output diagnostics make "wrong environment" bugs obvious within the first second of a run.
 
@@ -238,3 +251,4 @@ See `docs/roadmap.md` for the current backlog. Highlights:
 ## Context
 
 Built for the University of Illinois System in partnership with Sponsored Programs Administration. First production pipeline in a broader decision-intelligence initiative extending from Legislation LLM Feature Extraction methodology to research-funding analytics. See `docs/portfolio.html` for the narrative case study with business context and impact framing.
+
