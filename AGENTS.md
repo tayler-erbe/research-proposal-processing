@@ -1,5 +1,11 @@
 # Agent handoff: proposal → outcome data pull
 
+> **Current task:** [`docs/handoffs/codex-sample-pull.md`](docs/handoffs/codex-sample-pull.md):
+> pull representative samples and profiles from Kuali + the EDW, build a data
+> contract and mapping layer, and generate realistic synthetic data. Read that
+> first. Everything below is the full-pull reference plan, and its rules
+> (read-only, no data or credentials in git) apply to all work in this repo.
+
 This file briefs a coding agent (Codex or similar) running **on the work
 laptop**, which can reach the Kuali Research Oracle DB. It is the full
 context for the task; read it all before running anything.
