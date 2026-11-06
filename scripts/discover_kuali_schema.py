@@ -29,6 +29,10 @@
 # error is recorded in the report and the script moves on.
 
 import argparse
+from contextlib import contextmanager
+import json
+import re
+import socket
 import sys
 import time
 from pathlib import Path
@@ -36,8 +40,44 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from configs.config_loader import load_config            # noqa: E402
-from ingestion.oracle_connection import oracle_conn      # noqa: E402
+IDENTIFIER = re.compile(r"^[A-Z][A-Z0-9_$#]{0,127}$")
+
+
+def schema_owner(value):
+    value = value.upper()
+    if not IDENTIFIER.fullmatch(value):
+        raise argparse.ArgumentTypeError("Owner must be an unquoted Oracle schema identifier")
+    return value
+
+
+def load_database(path):
+    import yaml
+    with Path(path).open(encoding="utf-8-sig") as stream:
+        return yaml.safe_load(stream)["oracle"]
+
+
+@contextmanager
+def discovery_connection(db, args):
+    # Independent of production modules: no import-time client initialization.
+    import oracledb
+    if args.oracle_client_lib:
+        oracledb.init_oracle_client(lib_dir=args.oracle_client_lib)
+    source, credentials = db["kuali"], db["credentials"]
+    params = oracledb.ConnectParams(host=source["host"], port=int(source["port"]),
+        service_name=source["service"], tcp_connect_timeout=10, retry_count=0)
+    with oracledb.connect(user=credentials["username"], password=credentials["password"], params=params) as conn:
+        conn.call_timeout = args.call_timeout_ms
+        conn.autocommit = False
+        yield conn
+
+
+FILE_BEARING_SQL = """
+    SELECT table_name, column_name, data_type, nullable
+    FROM all_tab_columns
+    WHERE owner = :owner
+      AND (column_name IN ('FILE_DATA_ID', 'FILE_ID') OR data_type = 'BLOB')
+    ORDER BY table_name, column_id
+"""
 
 # Table-name fragments worth inventorying. Deliberately broad: the
 # point is to find the local equivalents, not to assume vendor names.
@@ -152,7 +192,7 @@ def build_shape_checks(o):
                SELECT NARRATIVE_TYPE_CODE, COUNT(*) AS N FROM {o}.NARRATIVE
                GROUP BY NARRATIVE_TYPE_CODE ORDER BY N DESC
              ) WHERE ROWNUM <= 25"""),
-        ("EPS_PROPOSAL: dev proposals by creation year",
+        ("EPS_PROPOSAL: dev proposals by update year (not creation/submission year)",
          f"""SELECT EXTRACT(YEAR FROM UPDATE_TIMESTAMP) AS YR, COUNT(*)
              FROM {o}.EPS_PROPOSAL GROUP BY EXTRACT(YEAR FROM UPDATE_TIMESTAMP) ORDER BY 1"""),
     ]
@@ -183,38 +223,64 @@ class Report:
 
 
 def run(cur, sql, binds=None):
+    if not sql.lstrip().upper().startswith("SELECT"):
+        raise ValueError("Discovery accepts only its SELECT statements")
     cur.execute(sql, binds or {})
     headers = [d[0] for d in cur.description]
-    return headers, cur.fetchall()
+    rows = cur.fetchmany(10001)
+    if len(rows) > 10000:
+        raise ValueError("Result exceeds discovery row limit; narrow the metadata scope")
+    return headers, rows
 
 
 def safe(report, label, fn):
     try:
         return fn()
     except Exception as e:  # missing table, privilege, bad column name
-        msg = str(e).splitlines()[0]
+        # Driver errors can include endpoints or connection configuration.
+        # Report codes and exception type, never the raw exception text.
+        codes = re.findall(r"(?:ORA|DPY|DPI)-\d+", str(e))
+        msg = ", ".join(sorted(set(codes))) or type(e).__name__
         report.add(f"- **{label}**: FAILED — `{msg}`")
         return None
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--owner", default="KUALI", help="Kuali schema owner (default KUALI)")
+    ap.add_argument("--owner", type=schema_owner, default="KUALI", help="Kuali schema owner (default KUALI)")
     ap.add_argument("--out", default="storage/discovery/kuali_schema_report.md")
+    ap.add_argument("--config", type=Path, default=PROJECT_ROOT / "configs/database.yaml")
+    ap.add_argument("--oracle-client-lib", help="Approved local Instant Client directory when thick mode is required")
+    ap.add_argument("--call-timeout-ms", type=int, default=30000)
+    ap.add_argument("--with-counts", action="store_true", help="Also run source-table aggregate scans after metadata review")
+    ap.add_argument("--preflight", action="store_true", help="Check config shape and TCP reachability only; no DB login")
     args = ap.parse_args()
+    if not 1000 <= args.call_timeout_ms <= 600000:
+        ap.error("call timeout must be between 1000 and 600000 ms")
+    output = (PROJECT_ROOT / args.out).resolve()
+    if not output.is_relative_to((PROJECT_ROOT / "storage").resolve()):
+        ap.error("Reports must stay under the gitignored storage directory")
     o = args.owner.upper()
-
-    db    = load_config("database.yaml")
-    creds = db["oracle"]["credentials"]
-    kuali = db["oracle"]["kuali"]
+    db = load_database(args.config)
+    if args.preflight:
+        source = db["kuali"]
+        status = {"configuration_present": True, "target": "kuali", "tcp_reachable": False, "database_login_attempted": False}
+        try:
+            with socket.create_connection((source["host"], int(source["port"])), timeout=5):
+                status["tcp_reachable"] = True
+        except OSError as exc:
+            status["error_type"] = type(exc).__name__
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.with_suffix(".preflight.json").write_text(json.dumps(status, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps(status))
+        return 0 if status["tcp_reachable"] else 2
 
     rpt = Report()
     rpt.add(f"# Kuali schema discovery — owner {o}")
     rpt.add(f"Generated {time.strftime('%Y-%m-%d %H:%M:%S')}. Metadata and aggregate counts only.")
 
     t0 = time.time()
-    with oracle_conn(kuali["host"], kuali["port"], kuali["service"],
-                     creds["username"], creds["password"]) as conn:
+    with discovery_connection(db, args) as conn:
         cur = conn.cursor()
 
         # ── 0. Who/where am I ─────────────────────────────────────────
@@ -245,6 +311,13 @@ def main():
                 rpt.add("")
                 rpt.add("**No objects found.** Either the owner name is wrong (try --owner) "
                         "or this account lacks visibility; check the grants.")
+
+        rpt.h("1b. All file-bearing columns, independent of table-name guesses")
+        res = safe(rpt, "file-bearing columns", lambda: run(cur, FILE_BEARING_SQL, {"owner": o}))
+        if res:
+            rpt.table(*res)
+            tables = sorted(set(tables) | {row[0] for row in res[1]})
+            rpt.add("Candidates only: this does not establish attachment ownership, scope or join keys.")
 
         # ── 2. Columns ────────────────────────────────────────────────
         rpt.h("2. Columns")
@@ -301,7 +374,9 @@ def main():
         rpt.add("Distinct dev proposals surviving each hop. A big drop shows where the "
                 "join assumption is wrong or where proposals were never funded.")
         rpt.add("")
-        for label, sql in build_funnel(o):
+        if not args.with_counts:
+            rpt.add("Source-table aggregate scans skipped. Review metadata first, then use --with-counts.")
+        for label, sql in build_funnel(o) if args.with_counts else []:
             s = time.time()
             res = safe(rpt, label, lambda: run(cur, sql))
             if res:
@@ -309,7 +384,7 @@ def main():
 
         # ── 6. Shape checks ───────────────────────────────────────────
         rpt.h("6. Versioning and outcome distributions")
-        for label, sql in build_shape_checks(o):
+        for label, sql in build_shape_checks(o) if args.with_counts else []:
             res = safe(rpt, label, lambda: run(cur, sql))
             if res:
                 rpt.add(f"**{label}**")
@@ -319,10 +394,16 @@ def main():
 
     rpt.add("")
     rpt.add(f"_Finished in {time.time() - t0:.0f}s._")
-    out = PROJECT_ROOT / args.out
+    out = output
     rpt.save(out)
     print(f"\nReport written to {out}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        sys.exit(main())
+    except Exception as exc:
+        codes = re.findall(r"(?:ORA|DPY|DPI)-\d+", str(exc))
+        print("Discovery stopped: " + (", ".join(sorted(set(codes))) or type(exc).__name__) +
+              ". No production entry point was run. Check network, config and client prerequisites.", file=sys.stderr)
+        sys.exit(1)
