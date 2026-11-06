@@ -161,9 +161,16 @@ Column lists for the staging tables are in
   over rebuilding the joins from raw Kuali, and record both paths in the
   contract.
 
-Start with `python scripts/discover_kuali_schema.py` (already in this repo,
-written without DB access, so fix it as needed). Add an equivalent pass for
-`dsstag`.
+Start with `scripts/discover_kuali_schema.py`: run `--preflight` first,
+then the metadata pass, then a bounded `--with-counts`. See
+`docs/linkage_findings.md` for the exact commands, including `--config` for
+a private `database.yaml` kept outside the repo and `--oracle-client-lib` for
+thick mode. Add an equivalent pass for `dsstag`.
+
+**Status as of the last session:** the laptop could not reach the Kuali or
+staging Oracle ports, so nothing has been validated live. Before anything
+else, confirm the network path with the user (VPN or campus network) and
+re-run `--preflight`. Don't try to work around network controls.
 
 ### 3.4 Join facts and traps already known
 
