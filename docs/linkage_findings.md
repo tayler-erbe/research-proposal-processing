@@ -1,45 +1,33 @@
-# Proposal / award linkage implementation status
+# Proposal / award linkage findings and validation state
 
-## Evidence and next step
+Read-only discovery and aggregate validation have connected successfully to the approved source. The development proposal -> administration link -> institutional proposal business number across versions -> funding link -> award business number path was exercised against the actual schema. Current-version uniqueness is checked independently, and historical link IDs are preserved.
 
-The Claude handoff branch and existing ingestion/writer source have been reviewed. Discovery queries and proposed joins are not yet validated against a live Kuali schema. A development proposal with no award link must not automatically be labelled NOT_FUNDED: incomplete linkage, historical versions, pending/withdrawn records and migration gaps must remain distinguishable.
+The owner confirmed institutional statuses 1 Pending, 2 Funded, 3 Not Funded, 5 Withdrawn and 8 Void. Missing/unmapped statuses remain Unknown. Records whose status and award links disagree are flagged and excluded from binary comparisons pending review. A missing link never automatically means Not Funded.
 
-The initial laptop network check could not reach the configured Kuali or staging Oracle TCP ports. The external preserved configuration was used for a config-and-network-only preflight; credentials were not copied into this repository. No database authentication, source query, BLOB download, production writer or OCR run has occurred.
+## Implemented and exercised locally
 
-## Discovery changes
+The prototype includes an attachment metadata union, source reconciliations, proposal/current-award spines, a many-to-many bridge, source/payload sizing, a format pilot, a stratified paired-case plan, resumable downloads, a legacy-inline supplement, case-level coverage checks and a parser handoff manifest. The sample has downloaded documents on both sides of every selected funded pair. Sensitive records, files, source connection identities, cohort statistics and stakeholder correspondence remain local; none are included in this public source update.
 
-- Metadata and code lookups run first. Join-funnel/version aggregate scans require `--with-counts` after metadata review.
-- File-bearing discovery searches all visible owner tables for BLOB columns and FILE_DATA_ID/FILE_ID, regardless of table names. Every candidate still needs an approved source adapter and join validation.
-- Schema identifiers are validated. Returned metadata is bounded; hitting the limit produces an explicit failure rather than silent truncation.
-- Client initialization is isolated from production helpers and accepts `--oracle-client-lib`. Per-round-trip timeout and connect timeout are configured; these are not a total runtime or resource-cost guarantee.
-- Errors report driver codes rather than potentially sensitive connection text. Reports must remain under gitignored storage.
-- Update year is labelled as update year, not creation year.
+The first paired plan selected shared FILE_DATA payloads. An independent case check then found historical award attachments whose bytes instead lived in ATTACHMENT_FILE.FILE_DATA. The supplement resolves attachment-file IDs, verifies lengths, deduplicates by the correct identity and downloads those bytes. The final check reconciles every available payload reference in the sampled narrative/institutional/award scope. A FILE_DATA-only pull must not be called complete.
+
+New inventories carry ATTACHMENT_FILE_ID directly. Replanning from an old inventory without stable inline keys stops explicitly instead of dropping legacy files. The current run preserves the original plan plus its supplement. The canonical completed-sample artifacts are paired_documents_complete.parquet and paired_case_coverage.parquet under local storage/linkage.
 
 ## Completeness experiments
 
-| Check | State |
+| Check | State / limit |
 |---|---|
-| E1 All source attachment rows accounted for | Pending schema discovery and adapter validation |
-| E2 Orphans / inline BLOB coverage | Pending source-column discovery |
-| E3 Empty files / duplicate identities and hashes | Pending inventory and pilot download |
-| E4 Actual format vs MIME/name | Pending pilot; ZIP/OLE signatures alone do not identify Word |
-| E5 Text yield / low quality / OCR | Pending extraction; OCR requires explicit approval |
-| E6 Proposal → institutional proposal → award funnel | Pending verified keys and version handling |
-| E7 Existing pipeline coverage | Pending staging read and owner/object-name confirmation |
-| E8 Kuali UI spot checks | Pending user-assisted comparison of selected records |
-| E9 Outcome plausibility | Pending lookup review and user-confirmed status mapping |
+| E1 Source coverage | Inventoried variants reconciled source/joined row counts; held/excluded source families remain separately labelled. |
+| E2 Orphans / inline data | Missing payloads inventoried; selected-case inline gap resolved. Full shared-store unreferenced-payload analysis remains open. |
+| E3 Empty/duplicate files | Source lengths, payload identities and downloaded hashes recorded. Full historical inline-identity consolidation remains open. |
+| E4 Actual format | Byte-based detection used for format and paired pilots; uncommon-format pilot proportions are not population estimates. |
+| E5 Text / OCR | Native-text pilot measured. Office conversion, unsupported/encrypted files and OCR remain explicit states; OCR was not run. |
+| E6 Join funnel | Live aggregate funnel passed and local context bridges built; fiscal definitions, amount allocation and other source-family contexts remain open. |
+| E7 Prior staging output | Not yet reconciled; no staging writers or production entry points ran. |
+| E8 Kuali UI comparison | Pending user-assisted case review. Source-ID joins do not replace this check. |
+| E9 Outcomes | Distribution inspected and mapping approved. Discrepancies held for review; no predictive or causal claim. |
 
-No counts or funded outcome classifications are asserted. PI names/emails and other additional personal fields have not been requested or extracted. The union must retain attachment provenance even when multiple attachment rows point at one file; binary deduplication must not erase those relationships. Proposal-award relationships belong in a many-to-many bridge to avoid inflating amounts or losing awards without development proposals.
+## Parser handoff and boundaries
 
-## Run on an approved network
+The completed sample is hash-verified before generating a PDF filename manifest and immutable hash-to-research-context bridge. Office/other formats have conversion and review queues. This prepares an interface to the existing parser; it does not run procurement ingestion, local database writes, OCR, inference or external model calls. See [the sampling and extraction guide](PAIRED_SAMPLE_AND_EXTRACTION.md).
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-discovery.txt
-.\.venv\Scripts\python.exe scripts/discover_kuali_schema.py --config "PATH_TO_EXISTING_PRIVATE_DATABASE_YAML" --preflight
-.\.venv\Scripts\python.exe scripts/discover_kuali_schema.py --config "PATH_TO_EXISTING_PRIVATE_DATABASE_YAML"
-```
-
-If Oracle requires thick mode, add `--oracle-client-lib "PATH_TO_APPROVED_INSTANT_CLIENT"`. No credential values belong in command arguments. Inspect `storage/discovery/kuali_schema_report.md`; only then run a bounded `--with-counts` pass and review the observed status descriptions before defining outcomes. See the root handoff for later inventory, spine, download and extraction deliverables; those are not yet implemented.
-
-Driver timeout behavior: [ConnectParams](https://python-oracledb.readthedocs.io/en/stable/api_manual/connect_params.html) and [connection call_timeout](https://python-oracledb.readthedocs.io/en/v3.1.1/api_manual/connection.html#Connection.call_timeout).
+Document IDs, payload IDs and case IDs are distinct. Operational extraction preserves historical versions; the funding-analysis view must exclude award and post-decision material from predictors. Open work includes stable business attachment keys alongside ROWIDs, a source snapshot/SCN strategy, additional sources, financial version/allocation rules and UI validation. Model/service choices in planning documents need validation before deployment.
