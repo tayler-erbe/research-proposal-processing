@@ -1,0 +1,13 @@
+{
+  "_note": "Stage-to-model routing. Selections follow the procurement evaluation (docs/evaluation/FINAL_EVALUATION.md in intake-pipeline-lab) and are candidates only, conditional on validation with labelled research documents. The laptop Ollama models are development fallbacks. Change models here, not in code; a change creates new job identities.",
+  "stages": {
+    "extract": {"backend": "ollama", "model": "qwen3:32b", "context": 16384, "output_tokens": 3000,
+                "chunk_bytes": 14000,
+                "evaluated_alternative": "gpt-oss:20b with low reasoning; avoid high reasoning (truncations)"},
+    "page_ocr": {"backend": "ollama", "model": "qwen2.5vl:7b", "context": 8192, "output_tokens": 4000,
+                 "target_route": "Nemotron 3.5 Parse single pass with numeric review, once provisioned on-prem"},
+    "table": {"backend": "ollama", "model": "qwen2.5vl:7b",
+              "target_route": "PaddleOCR-VL-1.6 single pass, 8192 output tokens, once provisioned on-prem",
+              "status": "not wired in this prototype; budgets in Word tables are read natively"}
+  }
+}

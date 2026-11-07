@@ -1,0 +1,7 @@
+# research_intake prototype (local only). Install alongside requirements-linkage.txt on the work laptop.
+pymupdf>=1.24
+python-docx>=1.1
+pandas>=2.0
+pyarrow>=14
+# Synthetic document generator and tests only:
+reportlab>=4.0

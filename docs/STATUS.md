@@ -1,6 +1,6 @@
 # Project status and open items
 
-_Last updated 2026-11-06. Branch: `claude/happy-clarke-plqt0c` (not yet merged to `main`)._
+_Last updated 2026-11-07. Branch: `claude/happy-clarke-plqt0c` (not yet merged to `main`)._
 
 ## Done
 
@@ -28,10 +28,11 @@ SharePoint) under SPA/AITS access controls.
    plus the private addendum kept in `storage/handoff/` on the laptop).
    Not started: no `contracts/`, `synthetic/` or `adapters/` yet. Use the
    downloaded paired sample and aggregate profiles as ground truth.
-2. **Text extraction of the sample:** hand `storage/linkage/parser_handoff/`
-   manifests to the existing procurement OCR/parser. That repo's location
-   and entry point still have to be provided. Office-file conversion and OCR are
-   not run yet.
+2. **Text extraction of the sample:** the `research_intake/` prototype now does
+   this. It is built from the procurement intake prototype's design; see
+   `docs/RESEARCH_INTAKE.md`. Tested on synthetic documents with a stub only.
+   Next: run it on the laptop against `storage/linkage` with local Ollama
+   models, review `review.html`, and lock the provisional field schema with SPA.
 3. **Validation still open:** E7 (reconcile with existing staging tables),
    E8 (spot-check ~20 cases in the Kuali UI with the owner), full orphan and
    duplicate analysis (E2/E3), stable attachment keys instead of ROWIDs, and a

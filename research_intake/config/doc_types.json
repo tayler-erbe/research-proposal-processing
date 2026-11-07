@@ -1,0 +1,20 @@
+{
+  "_note": "Ordered rules; first match wins. Patterns are case-insensitive regular expressions applied to the attachment file name, then to the opening text. Supply Kuali attachment-type codes separately with --type-map (local file, not committed).",
+  "proposal": [
+    {"doc_type": "biosketch", "pattern": "biograph|biosketch|curriculum vitae|\\bcv\\b"},
+    {"doc_type": "budget_justification", "pattern": "budget\\s*justification|budget\\s*narrative"},
+    {"doc_type": "data_management_plan", "pattern": "data\\s*management|data\\s*sharing\\s*plan"},
+    {"doc_type": "facilities", "pattern": "facilities|equipment\\s*and\\s*other\\s*resources"},
+    {"doc_type": "letter_of_support", "pattern": "letter\\s*of\\s*(support|collaboration|commitment)"},
+    {"doc_type": "abstract", "pattern": "project\\s*summary|abstract"},
+    {"doc_type": "specific_aims", "pattern": "specific\\s*aims"},
+    {"doc_type": "narrative", "pattern": "project\\s*description|research\\s*strategy|narrative|technical\\s*proposal|statement\\s*of\\s*work"}
+  ],
+  "award": [
+    {"doc_type": "modification", "pattern": "modification|amendment|revised\\s*notice|supplement"},
+    {"doc_type": "subaward_agreement", "pattern": "subaward|subcontract|sub-recipient|subrecipient"},
+    {"doc_type": "notice_of_award", "pattern": "notice\\s*of\\s*(grant\\s*)?award|\\bNOA\\b|grant\\s*agreement|award\\s*letter"},
+    {"doc_type": "contract", "pattern": "\\bcontract\\b|cooperative\\s*agreement|terms\\s*and\\s*conditions"},
+    {"doc_type": "budget", "pattern": "budget"}
+  ]
+}
