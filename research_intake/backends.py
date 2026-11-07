@@ -37,9 +37,12 @@ class OllamaBackend:
         tags = {m['name']: m for m in self._api('/api/tags')['models']}
         if self.route['model'] not in tags:
             raise ValueError('Requested model is not installed; refusing to substitute another model')
-        return {'backend': 'ollama', 'model': self.route['model'], 'digest': tags[self.route['model']]['digest'],
+        model = self.route['model']
+        # Evaluated settings: Qwen3 thinking off; GPT-OSS low reasoning (it has no 'off').
+        think = 'low' if model.startswith('gpt-oss') else self.route.get('think')
+        return {'backend': 'ollama', 'model': model, 'digest': tags[model]['digest'],
                 'runtime': self._api('/api/version')['version'], 'context': self.route.get('context', 16384),
-                'output_tokens': self.route.get('output_tokens', 3000), 'temperature': 0}
+                'output_tokens': self.route.get('output_tokens', 3000), 'temperature': 0, 'think': think}
 
     def busy(self):
         return bool(self._api('/api/ps')['models'])
@@ -48,10 +51,13 @@ class OllamaBackend:
         message = {'role': 'user', 'content': prompt}
         if images:
             message['images'] = images
-        raw = self._api('/api/chat', {'model': identity['model'], 'stream': False, 'format': schema,
-                                      'keep_alive': '10m', 'messages': [message],
-                                      'options': {'temperature': 0, 'num_ctx': identity['context'],
-                                                  'num_predict': identity['output_tokens']}})
+        payload = {'model': identity['model'], 'stream': False, 'format': schema,
+                   'keep_alive': '10m', 'messages': [message],
+                   'options': {'temperature': 0, 'num_ctx': identity['context'],
+                               'num_predict': identity['output_tokens']}}
+        if identity.get('think') is not None:
+            payload['think'] = identity['think']
+        raw = self._api('/api/chat', payload)
         return {'content': raw.get('message', {}).get('content', ''), 'done_reason': raw.get('done_reason'), 'raw': raw}
 
     def unload(self, identity):
