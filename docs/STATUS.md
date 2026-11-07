@@ -30,7 +30,8 @@ SharePoint) under SPA/AITS access controls.
    downloaded paired sample and aggregate profiles as ground truth.
 2. **Text extraction of the sample:** the `research_intake/` prototype now does
    this. It is built from the procurement intake prototype's design; see
-   `docs/RESEARCH_INTAKE.md`. Tested on synthetic documents with a stub only.
+   `docs/RESEARCH_INTAKE.md`. Tested on synthetic documents with the stub and with local Ollama models
+   (2026-11-07; scores in `docs/RESEARCH_INTAKE.md`).
    Next: run it on the laptop against `storage/linkage` with local Ollama
    models, review `review.html`, and lock the provisional field schema with SPA.
 3. **Validation still open:** E7 (reconcile with existing staging tables),

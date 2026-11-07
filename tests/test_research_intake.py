@@ -81,6 +81,12 @@ class ResearchIntakeEndToEnd(unittest.TestCase):
         self.assertIn('SYNTHETIC', result['label'])
         self.assertEqual(result['doc_type_correct'].split('/')[0], result['doc_type_correct'].split('/')[1])
 
+    def test_synthetic_pdf_text_matches_generator_text(self):
+        import pymupdf
+        text = pymupdf.open(self.manifest.parent / 'SYN-0001_award.pdf')[0].get_text()
+        self.assertIn('limits F&A to this rate', text)
+        self.assertNotIn('F&A;', text)
+
 
 @unittest.skipUnless(HAVE_DEPS and importlib.util.find_spec('pyarrow'), 'requires pyarrow')
 class PairedSampleAdapter(unittest.TestCase):

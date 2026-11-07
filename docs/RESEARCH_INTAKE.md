@@ -3,8 +3,18 @@
 Review-assisted extraction from research **proposal** and **award** documents,
 built on what the procurement intake prototype (private repo
 `intake-pipeline-lab`) established. Status: **working prototype, tested end to
-end on synthetic documents with a stub backend only.** Nothing here has been
-run on real documents or a real model yet, and no accuracy is claimed.
+end on synthetic documents** with the stub and, on 2026-11-07, with local
+Ollama (`qwen2.5vl:32b` page OCR, `qwen3:32b` extract). Nothing here has been
+run on real documents yet, and no accuracy is claimed.
+
+Synthetic run with real models (6 cases, 14 sources, 17 jobs, all complete):
+doc types 14/14; the 3 scanned pages transcribed exactly; every field had
+precision and recall 1.0 except `award_terms_flags` (precision 0.833: an F&A
+rate cap tagged `payment_restriction`). The synthetic text is simple and
+keyword-aligned, so this shows the model path works, not that it is accurate.
+The evaluator scores only positive truth: boolean fields expected `False` and
+documents with no truth fields (biosketch, DMP, modification) are not scored
+for false positives.
 
 ## What we kept from the procurement prototype
 

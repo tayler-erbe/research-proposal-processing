@@ -92,10 +92,12 @@ def _pdf(path, paragraphs):
     from reportlab.lib.pagesizes import letter
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+    from xml.sax.saxutils import escape
     style = getSampleStyleSheet()
     story = []
     for i, p in enumerate(paragraphs):
-        story += [Paragraph(p, style['Title' if i == 0 else 'BodyText']), Spacer(1, 8)]
+        # Paragraph parses markup: unescaped '&' renders as e.g. 'F&A;' and corrupts the ground-truth text.
+        story += [Paragraph(escape(p), style['Title' if i == 0 else 'BodyText']), Spacer(1, 8)]
     SimpleDocTemplate(str(path), pagesize=letter).build(story)
 
 
