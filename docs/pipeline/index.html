@@ -8,7 +8,7 @@
 <a href="#main" class="skip">Skip to content</a>
 <header class="site-header">
 <a href="#main" class="brand" aria-label="Document Intelligence Lab"><span class="brand-mark">DI<span>↗</span></span><span>Document<br><strong>Intelligence Lab</strong></span></a>
-<nav aria-label="Main navigation"><a href="#line">Pipeline</a><a href="#fields">Fields</a><a href="#safeguards">Safeguards</a><a href="#results">Results</a><a href="#next">Next steps</a><a href="#resources">Sources</a></nav>
+<nav aria-label="Main navigation"><a href="#line">Pipeline</a><a href="#sample">Sample</a><a href="#fields">Fields</a><a href="#safeguards">Safeguards</a><a href="#results">Results</a><a href="#next">Next steps</a><a href="#resources">Sources</a></nav>
 <a class="repo-link" href="https://github.com/tayler-erbe/research-proposal-processing/tree/claude/happy-clarke-plqt0c/research_intake">Code on GitHub <span aria-hidden="true">↗</span></a>
 </header>
 <main id="main">
@@ -91,6 +91,58 @@
 <div class="finding-note"><span class="note-symbol" aria-hidden="true">!</span><div><h3>"Not found" is not "absent".</h3><p>A field is reported as not found in the full text only when every chunk was read and answered. If a page is still unread, the result says so. A truncated or malformed model answer is a failure, never an absence.</p></div><a href="#safeguards">All the outcome states ↓</a></div>
 </section>
 
+<section class="section wrap" id="sample" style="padding-top:0">
+<div class="section-head">
+<p class="eyebrow">02 / FROM KUALI TO A SAMPLE</p>
+<h2>Linked before<br>it is read.</h2>
+<p>The documents come from Kuali Research through read-only scripts. Proposal-to-award links come from Kuali IDs, never from file names, and nothing is written back.</p>
+</div>
+<div class="route-grid six">
+<article class="route lead-route">
+<p class="route-id">DISCOVER AND VALIDATE</p>
+<h3>Confirm the schema first</h3>
+<p class="why">Bounded metadata discovery, then aggregate checks of every join against the real schema before any file is touched.</p>
+<span class="method-label">Read-only · counts only</span>
+<p class="caution">Join keys differ in type across tables; every cast is explicit.</p>
+</article>
+<article class="route">
+<p class="route-id">FILE INVENTORY</p>
+<h3>Every attachment source, one table</h3>
+<p class="why">Proposal narratives, institutional proposal and award attachments, all types and all versions, with missing and empty files kept visible.</p>
+<span class="method-label">Metadata · no file bytes</span>
+<p class="caution">Filtering is a later, documented choice, not a hidden WHERE clause.</p>
+</article>
+<article class="route">
+<p class="route-id">PROPOSAL SPINE</p>
+<h3>Proposal to award, many to many</h3>
+<p class="why">Development proposal → institutional proposal → award, with the funding bridge and version IDs kept, not collapsed.</p>
+<span class="method-label">Outcome mapping confirmed</span>
+<p class="caution">Status 1 Pending, 2 Funded, 3 Not Funded, 5 Withdrawn, 8 Void; anything else Unknown.</p>
+</article>
+<article class="route">
+<p class="route-id">SIZE AND PILOT</p>
+<h3>Measure before downloading</h3>
+<p class="why">Deduplicate by payload, measure storage, then pull a small pilot that spans sources and file types.</p>
+<span class="method-label">Bounded pilot</span>
+<p class="caution">The pilot is stratified on purpose, so it says nothing about how common each format is.</p>
+</article>
+<article class="route">
+<p class="route-id">PAIRED SAMPLE</p>
+<h3>Funded cases with matched controls</h3>
+<p class="why">Funded proposals paired with not-funded controls from the same year and sponsor type, pulled as complete case bundles under a size ceiling.</p>
+<span class="method-label">Batches of 20 · resumable</span>
+<p class="caution">A matched exploratory sample, not a success-rate estimate.</p>
+</article>
+<article class="route">
+<p class="route-id">VERIFY</p>
+<h3>Paired means proven paired</h3>
+<p class="why">Every file is re-hashed and every case reconciled on both sides before the intake pipeline may ingest it.</p>
+<span class="method-label">Hash-verified</span>
+<p class="caution">Matching metadata IDs alone is not proof that a file was downloaded.</p>
+</article>
+</div>
+</section>
+
 <section class="use-section" id="fields">
 <div class="wrap">
 <div class="use-layout">
@@ -114,7 +166,7 @@
 
 <section class="section wrap" id="fields-list">
 <div class="section-head">
-<p class="eyebrow">02 / THE FIELDS</p>
+<p class="eyebrow">03 / THE FIELDS</p>
 <h2>Eighteen fields,<br>all provisional.</h2>
 <p>Drafted from the sponsored-programs office's questions and the Lab's earlier award and proposal catalogs. The schema is versioned and must be signed off by the domain owner before any reporting use.</p>
 </div>
@@ -156,7 +208,7 @@
 
 <section class="section wrap" id="results">
 <div class="section-head">
-<p class="eyebrow">03 / RESULTS SO FAR</p>
+<p class="eyebrow">04 / RESULTS SO FAR</p>
 <h2>What has run,<br>and what it means.</h2>
 <p>Two kinds of evidence exist: the Lab's completed evaluation of parsers and field models on public benchmarks, and a first end-to-end run of this pipeline on synthetic documents. Neither is accuracy on real proposals.</p>
 </div>
@@ -172,6 +224,35 @@
 <div><span>Award-terms flags · precision (an F&amp;A rate cap tagged as a payment restriction)</span><strong>0.83</strong><i class="muted" style="--bar:83.3%"></i></div>
 </div>
 <p class="chart-note">The synthetic text is short and uses the vocabulary's own words, and the scorer does not yet count false positives on documents with no expected fields. Read this as "the plumbing and prompts work," not as accuracy.</p>
+</article>
+<article>
+<p class="route-id">SYNTHETIC RUN · BY FIELD</p>
+<h3>Seventeen scored fields, one miss</h3>
+<p>Values the synthetic documents should contain, counted per field. Deliverables had no synthetic ground truth and is not scored.</p>
+<div class="compare-wrap" role="region" aria-label="Synthetic run scores by field" tabindex="0">
+<table class="route-table score-table">
+<thead><tr><th>Field</th><th>Family</th><th>Correct</th><th>Wrong</th><th>Missed</th><th>Precision</th><th>Recall</th></tr></thead>
+<tbody>
+<tr><td>Research themes</td><td>Proposal</td><td>6</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Methods</td><td>Proposal</td><td>6</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Specific aims</td><td>Proposal</td><td>6</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Translational stage</td><td>Proposal</td><td>6</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Population focus</td><td>Proposal</td><td>6</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>External collaborators</td><td>Proposal</td><td>6</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Solicitation reference</td><td>Proposal</td><td>6</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Compliance flags</td><td>Proposal</td><td>8</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Facilities needs</td><td>Proposal</td><td>4</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Topic watchlist</td><td>Proposal</td><td>3</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Award document type</td><td>Award</td><td>3</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Award action</td><td>Award</td><td>3</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Reporting requirements</td><td>Award</td><td>3</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr class="miss"><td>Award terms flags</td><td>Award</td><td>5</td><td>1</td><td>0</td><td>0.83</td><td>1.00</td></tr>
+<tr><td>F&amp;A terms</td><td>Award</td><td>3</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Performance period as stated</td><td>Award</td><td>3</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+<tr><td>Closeout requirements</td><td>Award</td><td>3</td><td>0</td><td>0</td><td>1.00</td><td>1.00</td></tr>
+</tbody>
+</table>
+</div>
 </article>
 <article>
 <p class="route-id">MODEL ROUTES · FROM THE LAB'S EVALUATION</p>
@@ -211,7 +292,7 @@
 
 <section class="resources wrap" id="resources">
 <div>
-<p class="eyebrow">04 / SOURCES AND CODE</p>
+<p class="eyebrow">05 / SOURCES AND CODE</p>
 <h2>Read it, run it,<br>check it.</h2>
 <p class="hero-deck">The design, field schema, model routes and tests are in the repository. The synthetic generator runs anywhere without a GPU.</p>
 </div>

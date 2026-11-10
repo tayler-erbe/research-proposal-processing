@@ -22,3 +22,5 @@
 .route-table td{color:var(--muted)}
 @media(max-width:800px){.flow li+li::before{display:none}.flow-key{margin-top:-30px}}
 .results-band>article{min-width:0}
+.score-table td:nth-child(n+3){font-variant-numeric:tabular-nums;white-space:nowrap}
+.score-table tr.miss td{background:#f3e7dc}
