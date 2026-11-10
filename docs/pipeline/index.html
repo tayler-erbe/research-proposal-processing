@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#142b36">
+<meta name="description" content="Design of a review-assisted pipeline that reads research proposals and awards, extracts narrative facts with local models, and shows the evidence for every value. By Tayler Erbe, Document Intelligence Lab.">
+<title>Proposals and Awards, Read with Evidence · Document Intelligence Lab · Tayler Erbe</title>
+<meta property="og:type" content="website"><meta property="og:title" content="Read every proposal and award, and show the evidence."><meta property="og:description" content="A review-assisted document pipeline for research proposals and awards: local models, evidence copied by code, and honest absence. By Tayler Erbe."><meta name="author" content="Tayler Erbe">
+<link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="site.css"><link rel="stylesheet" href="brief.css"><link rel="stylesheet" href="pipeline.css"><script src="pipeline.js" defer></script></head>
+<body>
+<a href="#main" class="skip">Skip to content</a>
+<header class="site-header">
+<a href="#main" class="brand" aria-label="Document Intelligence Lab"><span class="brand-mark">DI<span>↗</span></span><span>Document<br><strong>Intelligence Lab</strong></span></a>
+<nav aria-label="Main navigation"><a href="#line">Pipeline</a><a href="#fields">Fields</a><a href="#safeguards">Safeguards</a><a href="#results">Results</a><a href="#next">Next steps</a><a href="#resources">Sources</a></nav>
+<a class="repo-link" href="https://github.com/tayler-erbe/research-proposal-processing/tree/claude/happy-clarke-plqt0c/research_intake">Code on GitHub <span aria-hidden="true">↗</span></a>
+</header>
+<main id="main">
+
+<section class="hero">
+<div class="hero-copy">
+<p class="eyebrow">TAYLER ERBE / PIPELINE DESIGN · RESEARCH PROPOSALS AND AWARDS</p>
+<h1>Read every proposal and award, and <em>show the evidence</em>.</h1>
+<p class="hero-deck">Sponsored-research offices hold thousands of proposal narratives and award documents that no report can see. This pipeline reads them with local models and turns them into searchable, filterable fields, each tied to the passage it came from.</p>
+<p class="answer-line"><b>Short answer:</b> take every fact that already lives in a database column from the database. Ask the model only for what lives in the text, make it point to the passage, and let code copy the quote.</p>
+<div class="hero-actions">
+<a href="#line" class="button primary">See the pipeline <span aria-hidden="true">↓</span></a>
+<a href="https://github.com/tayler-erbe/research-proposal-processing/blob/claude/happy-clarke-plqt0c/docs/RESEARCH_INTAKE.md" class="text-link">Read the design ↗</a>
+<a href="https://github.com/tayler-erbe/research-proposal-processing" class="text-link">Repository on GitHub ↗</a>
+</div>
+<p class="author-line"><span><b>Tayler Erbe</b> · Data scientist, applied AI · document pipelines that hold up to checking. <a href="#about">About</a></span></p>
+</div>
+<div class="hero-figure" id="hero-figure">
+<div class="figure-top"><span>WHAT WE KNOW SO FAR</span>
+<div class="hero-tabs" role="tablist" aria-label="Headline results">
+<button role="tab" aria-selected="true" aria-controls="hp-run" id="ht-run">First run</button>
+<button role="tab" aria-selected="false" aria-controls="hp-read" id="ht-read" tabindex="-1">Reading</button>
+<button role="tab" aria-selected="false" aria-controls="hp-fields" id="ht-fields" tabindex="-1">Field models</button>
+</div></div>
+<div class="hero-panel" id="hp-run" role="tabpanel" aria-labelledby="ht-run">
+<h2>Real models.<br>Synthetic documents.</h2>
+<div class="hero-bars" aria-label="Synthetic run with local models: document types correct 100 percent, award terms precision 83.3 percent">
+<div><span>Document types classified correctly</span><strong>14/14</strong><i style="--bar:100%"></i></div>
+<div class="muted-bar"><span>Award-terms flags, precision</span><strong>83.3%</strong><i style="--bar:83.3%"></i></div>
+</div>
+<p>Six fabricated cases, 14 files, run end to end with Qwen3 32B for fields and Qwen2.5-VL 32B for scanned pages. Every other field scored 1.0. The text is simple and keyword-aligned, so this proves the model path works, not that it is accurate.</p>
+<a class="figure-source" href="#results">See the run <span>↓</span></a>
+</div>
+<div class="hero-panel" id="hp-read" role="tabpanel" aria-labelledby="ht-read" hidden>
+<h2>Tables read well.<br>Page numbers need review.</h2>
+<div class="hero-bars" aria-label="Numeric recall on public benchmarks: PaddleOCR-VL tables 97.4 percent, Nemotron Parse pages 88.2 percent">
+<div><span>Tables · PaddleOCR-VL 1.6</span><strong>97.4%</strong><i style="--bar:97.4%"></i></div>
+<div class="muted-bar"><span>Whole pages · Nemotron 3.5 Parse</span><strong>88.2%</strong><i style="--bar:88.2%"></i></div>
+</div>
+<p>Numeric recall from the Lab's completed parser evaluation on public benchmarks: 100 financial tables and 80 pages. Bag-of-numbers recall, not field-level accuracy on research documents.</p>
+<a class="figure-source" href="#results">See the routes <span>↓</span></a>
+</div>
+<div class="hero-panel" id="hp-fields" role="tabpanel" aria-labelledby="ht-fields" hidden>
+<h2>Field models are modest.<br>Keep a reviewer.</h2>
+<div class="hero-bars" aria-label="Public contract-question benchmark: Qwen3 32B thinking off 14 of 30 on CUAD, 18 of 30 on ContractNLI">
+<div><span>ContractNLI · Qwen3 32B, thinking off</span><strong>18/30</strong><i style="--bar:60%"></i></div>
+<div class="muted-bar"><span>CUAD · same model</span><strong>14/30</strong><i style="--bar:46.7%"></i></div>
+</div>
+<p>On the balanced CUAD set an always-"absent" answer would score 15/30. That is why every value is a proposal for a person to accept, and why absence has to be earned.</p>
+<a class="figure-source" href="#safeguards">See the safeguards <span>↓</span></a>
+</div>
+</div>
+</section>
+
+<section class="stat-strip" aria-label="Key facts">
+<div><strong>18</strong><span>provisional fields, all from narrative text; none duplicate a database column</span></div>
+<div><strong>0</strong><span>quoted words written by the model; code copies every quote from the source</span></div>
+<div><strong>1</strong><span>model loaded at a time, so the whole line fits one L4 or L40S GPU</span></div>
+<div><strong>100–300</strong><span>labelled documents needed before any accuracy claim</span></div>
+</section>
+
+<section class="section wrap" id="line">
+<div class="section-head">
+<p class="eyebrow">01 / THE PIPELINE</p>
+<h2>An assembly line,<br>one model at a time.</h2>
+<p>Each stage runs across the whole corpus, then unloads its model before the next stage starts. Small task-specific models often beat one large general model, and the target hardware holds one model comfortably.</p>
+</div>
+<ol class="flow" aria-label="Pipeline stages in order">
+<li class="code">Ingest</li><li class="code">Parse</li><li class="code">Classify</li><li class="model">OCR unread pages</li><li class="model">Extract fields</li><li class="code">Consolidate</li><li class="code">Export and review</li>
+</ol>
+<div class="flow-key" aria-hidden="true"><span><i class="code"></i>Deterministic code</span><span><i class="model"></i>Local model</span></div>
+<ol class="steps6">
+<li><h3>Ingest by fingerprint</h3><p>Each file is registered by the SHA-256 of its bytes. A boilerplate plan attached to five proposals is read once and keeps all five links, which come from source-system IDs, never from file names.</p></li>
+<li><h3>Parse with read states</h3><p>PDFs keep page and position; Word files keep paragraph and table-row identity. A scanned page is marked unread until OCR succeeds. Unsupported formats stay visible with a reason.</p></li>
+<li><h3>Classify by metadata first</h3><p>Proposal or award comes from the document's role in the source system. Type (narrative, biosketch, notice of award, modification) comes from attachment codes, then file names, then opening text. Otherwise "other".</p></li>
+<li><h3>Read what has no text</h3><p>A vision model transcribes only the unread pages. Its text is stored as unverified OCR, separate from native text, so later reviews know where each word came from.</p></li>
+<li><h3>Extract with evidence IDs</h3><p>Every readable passage goes to the field model in bounded chunks, labelled E1, E2, and so on. The model returns IDs and choices. Code copies the exact text and rejects anything it cannot resolve.</p></li>
+<li><h3>Consolidate, then review</h3><p>Code merges the chunks by fixed rules, keeps conflicting answers, and exports long, wide and case-level tables with an offline review page and full-text search.</p></li>
+</ol>
+<div class="finding-note"><span class="note-symbol" aria-hidden="true">!</span><div><h3>"Not found" is not "absent".</h3><p>A field is reported as not found in the full text only when every chunk was read and answered. If a page is still unread, the result says so. A truncated or malformed model answer is a failure, never an absence.</p></div><a href="#safeguards">All the outcome states ↓</a></div>
+</section>
+
+<section class="use-section" id="fields">
+<div class="wrap">
+<div class="use-layout">
+<h2>Ask the model only<br>what the text knows.</h2>
+<div><p class="large-copy">Sponsor, amounts, dates, investigators, units and funding outcome already sit in database columns. Asking a model to re-read them only adds errors. The model's job is the narrative: what the work is, what it needs, and what the award requires.</p></div>
+</div>
+<div class="compare-wrap" role="region" aria-label="Where each kind of fact comes from" tabindex="0">
+<table class="compare">
+<thead><tr><th scope="col"></th><th scope="col" class="rules">Database columns</th><th scope="col">Model picks from a list</th><th scope="col">Model points to the passage</th></tr></thead>
+<tbody>
+<tr><th scope="row">Examples</th><td class="rules">Sponsor, requested and awarded amounts, dates, PI, unit, campus, outcome</td><td>Compliance flags, facilities, populations, topic watchlist, award terms, translational stage</td><td>Specific aims, solicitation, reporting requirements, F&amp;A terms, period of performance, closeout</td></tr>
+<tr><th scope="row">Who decides the value</th><td class="rules"><span class="yes">The source system</span></td><td>Model, from a controlled vocabulary</td><td>The source text itself</td></tr>
+<tr><th scope="row">Can it invent a value</th><td class="rules"><span class="yes">No</span></td><td><span class="no">Rejected</span> if off the list or uncited</td><td><span class="no">Rejected</span> if an ID does not resolve</td></tr>
+<tr><th scope="row">Evidence shown</th><td class="rules">The record</td><td>Passages cited for each value</td><td>The exact quote, copied by code</td></tr>
+<tr><th scope="row">When answers conflict</th><td class="rules">Source-system rules</td><td>Values merged, each with its evidence; single-choice conflicts kept as "ambiguous"</td><td>All supporting passages kept</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section class="section wrap" id="fields-list">
+<div class="section-head">
+<p class="eyebrow">02 / THE FIELDS</p>
+<h2>Eighteen fields,<br>all provisional.</h2>
+<p>Drafted from the sponsored-programs office's questions and the Lab's earlier award and proposal catalogs. The schema is versioned and must be signed off by the domain owner before any reporting use.</p>
+</div>
+<div class="results-band">
+<article><p class="route-id">PROPOSALS · 8 FIELDS</p><h3>What the work is and needs</h3><p>Themes and methods are short labels marked as interpretation, each tied to passages. The rest are quotes or list choices.</p>
+<ul class="field-list"><li>research themes</li><li>methods</li><li>specific aims</li><li>translational stage</li><li>population focus</li><li>external collaborators</li><li>solicitation reference</li><li>facilities needs</li></ul></article>
+<article><p class="route-id">AWARDS · 8 FIELDS</p><h3>What the award requires</h3><p>Award documents have had no analysis at all until now; reporting requirements and special terms are the biggest new capability.</p>
+<ul class="field-list"><li>award document type</li><li>award action</li><li>reporting requirements</li><li>deliverables</li><li>award terms flags</li><li>F&amp;A terms</li><li>period of performance as stated</li><li>closeout requirements</li></ul></article>
+<article><p class="route-id">BOTH · 2 FIELDS</p><h3>Compliance and topics</h3><p>Fifteen compliance flags, from human subjects to export control, and a topic watchlist for the questions leadership asks most often.</p>
+<ul class="field-list"><li>compliance flags</li><li>topic watchlist</li></ul></article>
+</div>
+</section>
+
+<section class="use-section" id="safeguards">
+<div class="wrap">
+<div class="use-layout">
+<h2>Built so a wrong<br>answer is visible.</h2>
+<div><p class="large-copy">A pipeline that reads thousands of documents will be wrong sometimes. The design goal is that every error can be seen, traced to a passage, and corrected without losing the original.</p></div>
+</div>
+<div class="roadmap" style="margin-top:45px">
+<article><span>01 / EVIDENCE</span><h3>IDs, not quotes</h3><p>The model never writes a quote. It names excerpt IDs; code copies the text and rejects unknown IDs, off-list values and "found" with no evidence.</p></article>
+<article><span>02 / ABSENCE</span><h3>Earned, not assumed</h3><p>"Not found" is only reported for text that was read. Unread pages, failed chunks and truncated answers each get their own state.</p></article>
+<article><span>03 / TIME</span><h3>No look-ahead</h3><p>The case table keeps award documents in separate award columns, so facts known only after a decision can never explain whether a proposal was funded.</p></article>
+<article><span>04 / LINEAGE</span><h3>Nothing overwritten</h3><p>Each result carries the model digest, prompt hash and schema version. A new model makes a new version; a reviewer's correction never replaces the original proposal.</p></article>
+</div>
+<table class="outcomes" style="margin-top:45px" aria-label="Field outcome states">
+<tbody>
+<tr><th>found</th><td>A value with at least one resolved passage. Still a proposal until a person accepts it.</td></tr>
+<tr><th>ambiguous</th><td>Different chunks chose different single values. Both are kept for review.</td></tr>
+<tr><th>not found in full text</th><td>Every readable chunk answered and nothing was found. Not a legal statement of absence.</td></tr>
+<tr><th>not found in read text</th><td>Nothing found, but some pages are still unread.</td></tr>
+<tr><th>no readable text</th><td>The document has no text yet, such as an image-only scan awaiting OCR.</td></tr>
+<tr><th>incomplete</th><td>A chunk failed, was truncated or was rejected, so the field cannot be called.</td></tr>
+</tbody>
+</table>
+<div class="next-footer"><p><strong>Local only.</strong> Inference runs on approved on-premises hardware through a local model server. The pipeline refuses to substitute a model that is not installed and refuses to start while another workload holds the GPU.</p><a class="text-link" href="https://github.com/tayler-erbe/research-proposal-processing/blob/claude/happy-clarke-plqt0c/research_intake/backends.py">Backend code ↗</a></div>
+</div>
+</section>
+
+<section class="section wrap" id="results">
+<div class="section-head">
+<p class="eyebrow">03 / RESULTS SO FAR</p>
+<h2>What has run,<br>and what it means.</h2>
+<p>Two kinds of evidence exist: the Lab's completed evaluation of parsers and field models on public benchmarks, and a first end-to-end run of this pipeline on synthetic documents. Neither is accuracy on real proposals.</p>
+</div>
+<div class="results-band one">
+<article>
+<p class="route-id">SYNTHETIC RUN · LOCAL MODELS · 7 NOVEMBER 2026</p>
+<h3>The whole line works with real models</h3>
+<p>Six fabricated cases: proposal narratives in PDF and Word, biosketches, a shared data plan, notices of award and image-only modifications. 14 unique files and 17 jobs, all completed.</p>
+<div class="mini-bars" aria-label="Synthetic run results">
+<div><span>Document types classified correctly · 14 files</span><strong>100%</strong><i style="--bar:100%"></i></div>
+<div><span>Scanned pages transcribed exactly · 3 pages</span><strong>100%</strong><i style="--bar:100%"></i></div>
+<div><span>Every field except award terms · precision and recall</span><strong>1.00</strong><i style="--bar:100%"></i></div>
+<div><span>Award-terms flags · precision (an F&amp;A rate cap tagged as a payment restriction)</span><strong>0.83</strong><i class="muted" style="--bar:83.3%"></i></div>
+</div>
+<p class="chart-note">The synthetic text is short and uses the vocabulary's own words, and the scorer does not yet count false positives on documents with no expected fields. Read this as "the plumbing and prompts work," not as accuracy.</p>
+</article>
+<article>
+<p class="route-id">MODEL ROUTES · FROM THE LAB'S EVALUATION</p>
+<h3>Each task gets its own model</h3>
+<div class="compare-wrap" role="region" aria-label="Model routes" tabindex="0">
+<table class="route-table">
+<thead><tr><th>Task</th><th>Candidate</th><th>Public-benchmark evidence</th><th>Status here</th></tr></thead>
+<tbody>
+<tr><td>Native text</td><td>PDF and Word parsers, no OCR</td><td>Deterministic</td><td>Built</td></tr>
+<tr><td>Field extraction</td><td>Qwen3 32B, thinking off; GPT-OSS 20B low as alternative</td><td>CUAD 14/30, ContractNLI 18/30 (Qwen3)</td><td>Built, run on synthetic</td></tr>
+<tr><td>Scanned pages</td><td>Nemotron 3.5 Parse, numeric review</td><td>Word F1 0.90, numeric recall 0.88, 80 pages</td><td>Local vision fallback in use</td></tr>
+<tr><td>Tables</td><td>PaddleOCR-VL 1.6, single pass</td><td>TEDS 0.85, numeric recall 0.97, 100 tables</td><td>Not yet wired; Word tables read natively</td></tr>
+<tr><td>Layout</td><td>DocLayout-YOLO</td><td>Retained from earlier routes</td><td>Not yet wired</td></tr>
+</tbody>
+</table>
+</div>
+<p class="chart-note">Benchmarks are public proxies (financial tables, contract questions). Every route remains conditional on labelled research documents.</p>
+</article>
+</div>
+</section>
+
+<section class="use-section" id="next">
+<div class="wrap">
+<div class="use-layout">
+<h2>Next: real documents,<br>real labels.</h2>
+<div><p class="large-copy">A paired sample of funded proposals with their awards, and matched unfunded proposals, has already been pulled read-only from the source system. The next steps turn the prototype into evidence.</p></div>
+</div>
+<div class="roadmap" style="margin-top:45px">
+<article><span>01 / AGREE</span><h3>Lock the fields</h3><p>Review the 18 provisional fields with the sponsored-programs owner: definitions, single or multiple values, and what counts as evidence.</p></article>
+<article><span>02 / RUN</span><h3>The paired sample</h3><p>Run locally on the paired proposals and awards in small batches, review the outputs, and fix what real documents break.</p></article>
+<article><span>03 / LABEL</span><h3>A locked holdout</h3><p>Label 100–300 representative documents, double-label a fifth of them, adjudicate, and score against a holdout no one tunes on.</p></article>
+<article><span>04 / ROUTE</span><h3>Provision the parsers</h3><p>Stand up the selected table and page parsers on-prem behind the same interface, then join fields to database facts for analysis.</p></article>
+</div>
+<div class="next-footer"><p><strong>Why synthetic first.</strong> Fabricated documents with known answers let every stage, failure state and model adapter be tested before a single real document is touched, and they can be shared openly.</p><a class="text-link" href="https://github.com/tayler-erbe/research-proposal-processing/blob/claude/happy-clarke-plqt0c/docs/STATUS.md">Project status ↗</a></div>
+</div>
+</section>
+
+<section class="resources wrap" id="resources">
+<div>
+<p class="eyebrow">04 / SOURCES AND CODE</p>
+<h2>Read it, run it,<br>check it.</h2>
+<p class="hero-deck">The design, field schema, model routes and tests are in the repository. The synthetic generator runs anywhere without a GPU.</p>
+</div>
+<div class="resource-links">
+<a href="https://github.com/tayler-erbe/research-proposal-processing/blob/claude/happy-clarke-plqt0c/docs/RESEARCH_INTAKE.md"><span>Pipeline design · what was reused, what changed, how to run</span><b>↗</b></a>
+<a href="https://github.com/tayler-erbe/research-proposal-processing/blob/claude/happy-clarke-plqt0c/research_intake/config/fields.json"><span>Field schema · 18 provisional fields and vocabularies</span><b>↗</b></a>
+<a href="https://github.com/tayler-erbe/research-proposal-processing/blob/claude/happy-clarke-plqt0c/research_intake/config/routes.json"><span>Model routes · one model per stage</span><b>↗</b></a>
+<a href="https://github.com/tayler-erbe/research-proposal-processing/blob/claude/happy-clarke-plqt0c/research_intake/evidence.py"><span>Evidence contract · IDs in, quotes copied by code</span><b>↗</b></a>
+<a href="https://github.com/tayler-erbe/research-proposal-processing/blob/claude/happy-clarke-plqt0c/tests/test_research_intake.py"><span>Tests · end to end on synthetic documents</span><b>↗</b></a>
+<a href="https://github.com/tayler-erbe/research-proposal-processing"><span>Repository · the production text and keyword pipeline this builds on</span><b>↗</b></a>
+</div>
+</section>
+
+<section class="section wrap" id="about" style="padding-top:20px">
+<div class="use-layout">
+<div><p class="eyebrow">ABOUT THIS WORK</p><h2 style="font-size:clamp(30px,3vw,42px)">Tayler Erbe</h2></div>
+<div>
+<p class="large-copy" style="font-size:20px">I am a data scientist working in applied AI. I build data products that hold up to checking, and I test AI tools before anyone relies on them.</p>
+<p>This pipeline extends an existing production system that already extracts text and keywords from research proposals, and reuses the design proven in the Lab's procurement-document prototype. Results on this page come from synthetic documents and public benchmarks only. AI assistants helped write and test the code. To talk about document pipelines for your own office, see <a href="https://taylererbe.com/">my site</a>.</p>
+</div>
+</div>
+</section>
+</main>
+<footer class="wrap">
+<div><strong>Document Intelligence Lab</strong><p>Tayler Erbe · Last updated 10 November 2026 · Prototype design. No real-document accuracy is claimed.</p></div>
+<a href="https://github.com/tayler-erbe/research-proposal-processing/blob/claude/happy-clarke-plqt0c/docs/RESEARCH_INTAKE.md">Full design document ↗</a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,74 @@
+/* Additions for the accessible-charts brief. Built on styles.css and site.css from the Document Intelligence Lab; same tokens, fonts and spacing. */
+.site-header{top:env(safe-area-inset-top,0px)}
+
+/* Results: full-width cards in the results-band frame */
+.results-band.one{grid-template-columns:1fr}
+.results-band.one>article{border-right:0;border-bottom:1px solid var(--line)}
+.results-band.one>article:last-child{border-bottom:0}
+.results-band.one h3{font-size:24px;margin-bottom:8px}
+.chart-legend{display:flex;gap:22px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:14px 0 6px}
+.chart-legend i{display:inline-block;width:12px;height:10px;margin-right:7px;vertical-align:-1px}
+.chart-legend i.dot{width:10px;height:10px;border-radius:50%}
+.chart-legend i.dash{width:0;height:12px;border-left:2px dashed var(--amber);margin-right:9px}
+.group-label{font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin:16px 0 2px}
+.mini-bars.wide>div{grid-template-columns:minmax(0,1fr) auto}
+.mini-bars>div.human span{font-weight:700;color:var(--ink)}
+.mini-bars>div.human i{background:linear-gradient(to right,var(--amber) var(--bar),#e4e8e1 var(--bar))}
+.svg-chart{min-width:0;margin:10px 0}
+.svg-chart svg{display:block;max-width:100%;height:auto}
+.pair-charts{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin:10px 0}
+.pair-charts h4{font:600 15px var(--display);letter-spacing:-.3px;margin:0 0 6px}
+.chart-note{font-size:12px!important;color:var(--muted)}
+
+/* Compare table on the beige band */
+.compare-wrap{overflow-x:auto;margin-top:30px}
+.compare{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+.compare th,.compare td{text-align:left;padding:14px 12px;border-bottom:1px solid #cfcab9;vertical-align:top}
+.compare thead th{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.compare tbody th{font:600 14px var(--display);letter-spacing:-.2px}
+.compare th:first-child,.compare td:first-child{padding-left:0}
+.compare .rules{background:rgba(196,239,98,.28)}
+.compare .no{color:var(--amber);font-weight:700}
+.compare .yes{color:var(--teal);font-weight:700}
+
+/* Evidence page */
+.study{border-top:1px solid var(--line);padding-block:56px;display:grid;gap:20px;scroll-margin-top:110px}
+.study h2{font-size:clamp(26px,2.6vw,36px);letter-spacing:-1px;margin:0;max-width:900px}
+.study .takeaway{border-left:3px solid var(--teal);padding:4px 0 4px 18px;font-size:16px;max-width:760px;margin:0}
+.facts{display:grid;grid-template-columns:150px minmax(0,1fr);border:1px solid var(--line);background:var(--white);margin:0}
+.facts dt,.facts dd{padding:13px 16px;border-bottom:1px solid var(--line);margin:0;font-size:14px}
+.facts dt{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:700;padding-top:16px}
+.facts dt:last-of-type,.facts dd:last-of-type{border-bottom:0}
+.study .caution{max-width:820px;margin:0}
+.study-src{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);margin:0}
+.study-src .method-label{margin:0}
+.study-src .method-label.check{background:#f3e7dc;color:var(--amber)}
+.study ul{max-width:820px;margin:0;padding-left:20px;font-size:15px}
+.study li{margin:6px 0}
+.formula{font:600 18px var(--display);background:var(--white);border:1px solid var(--line);padding:16px 18px;overflow-x:auto;margin:0}
+.light-table{width:100%;border-collapse:collapse;font-size:13px;min-width:620px;background:var(--white)}
+.light-table th,.light-table td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}
+.light-table thead th{font-size:10px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap}
+.light-table td.n,.light-table th.n{text-align:right;font-variant-numeric:tabular-nums}
+.light-table tr.group td{background:#edf0e7;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.light-table tr.best td{font-weight:700}
+.light-table tr.human td{background:var(--ink);color:var(--paper);font-weight:700}
+.light-table tr:last-child td{border-bottom:0}
+.table-frame{overflow-x:auto;border:1px solid var(--line)}
+.toc-grid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}
+.toc-grid a{padding:16px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-decoration:none;font-size:13px;display:grid;gap:3px}
+.toc-grid a span{font-size:10px;letter-spacing:1.4px;color:var(--teal)}
+.toc-grid a:hover{background:#edf0e7}
+.toc-grid a:nth-child(3n){border-right:0}
+.toc-grid a:nth-last-child(-n+3){border-bottom:0}
+
+@media(max-width:800px){
+  .pair-charts{grid-template-columns:1fr}
+  .facts{grid-template-columns:1fr}
+  .facts dt{border-bottom:0;padding-bottom:0}
+  .toc-grid{grid-template-columns:1fr 1fr}
+  .toc-grid a:nth-child(3n){border-right:1px solid var(--line)}
+  .toc-grid a:nth-child(2n){border-right:0}
+  .toc-grid a:nth-last-child(-n+3){border-bottom:1px solid var(--line)}
+  .toc-grid a:last-child{border-bottom:0}
+}
