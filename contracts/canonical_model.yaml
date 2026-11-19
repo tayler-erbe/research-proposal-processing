@@ -1,0 +1,106 @@
+# Canonical data model for proposal -> outcome analysis.
+# Downstream code reads only these names. Sources (synthetic, Kuali) map onto
+# them through contracts/sources/*.yaml and adapters/mapping.py.
+# Types: int, str, float, date (ISO yyyy-mm-dd), bool.
+# Fields marked derived are computed by adapters.mapping.derive() after
+# loading, the same way for every source; sources never supply them.
+version: 1
+
+entities:
+  dev_proposal:
+    grain: one row per development proposal
+    key: [dev_proposal_number]
+    fields:
+      dev_proposal_number: int
+      lead_unit_number: str
+      sponsor_code: str
+      activity_type_code: str
+      proposal_type_code: str
+      deadline_date: date
+      requested_start_date: date
+      requested_end_date: date
+      linked_inst_version_id: int    # PROPOSAL_ADMIN_DETAILS.INST_PROPOSAL_ID; may point at a non-current version
+      submitted_date: date
+      campus: {type: str, derived: campus_from_unit}
+      fiscal_year: {type: int, derived: fiscal_year_from_submitted}
+      sponsor_type: {type: str, derived: sponsor_type_from_sponsor}
+
+  inst_proposal:
+    grain: one row per institutional proposal version
+    key: [inst_version_id]
+    fields:
+      inst_version_id: int
+      inst_proposal_number: str      # zero-padded business number, shared by all versions
+      sequence_number: int
+      is_current: bool               # PROPOSAL_SEQUENCE_STATUS = 'ACTIVE'
+      status_code: str
+      requested_direct: float
+      requested_indirect: float
+
+  award:
+    grain: one row per award version
+    key: [award_version_id]
+    fields:
+      award_version_id: int
+      award_number: str
+      sequence_number: int
+      is_current: bool               # AWARD_SEQUENCE_STATUS = 'ACTIVE'
+      status_code: str
+      sponsor_code: str
+      lead_unit_number: str
+      begin_date: date
+
+  proposal_award_link:
+    grain: one row per funding link (many-to-many, historical versions kept)
+    key: [funding_link_id]
+    fields:
+      funding_link_id: int
+      inst_version_id: int
+      award_version_id: int
+      active: bool
+
+  sponsor:
+    grain: one row per sponsor
+    key: [sponsor_code]
+    fields:
+      sponsor_code: str
+      sponsor_type_code: str
+
+  document:
+    grain: one row per attachment row (a payload can be shared by several rows)
+    key: [source, attachment_key]
+    fields:
+      source: str                    # PROPOSAL_NARRATIVE or AWARD
+      attachment_key: str            # narrative: "<proposal>-<module>"; award: attachment file id
+      dev_proposal_number: int       # narrative rows only
+      module_number: int             # narrative rows only
+      award_version_id: int          # award rows only
+      attachment_file_id: int        # award rows only
+      attachment_type_code: str
+      file_data_id: str              # GUID-like; null when the bytes are inline or missing
+      file_name: str
+      content_type: str
+      payload_location: str          # FILE_DATA, INLINE or MISSING
+      detected_format: str           # from bytes, not the file name: pdf, docx, doc, other
+      byte_size: int
+      n_pages: int
+
+# The analysis view built from the entities above (adapters/views.py).
+views:
+  spine:
+    grain: one row per development proposal
+    fields:
+      dev_proposal_number: int
+      campus: str
+      fiscal_year: int
+      sponsor_type: str
+      activity_type_code: str
+      proposal_type_code: str
+      submitted_date: date
+      inst_status_code: str
+      requested_total: float
+      outcome: str                   # PENDING, FUNDED, NOT_FUNDED, WITHDRAWN, VOID, UNKNOWN
+      n_awards: int
+      first_award_begin_date: date
+      outcome_link_review_required: bool
+      binary_outcome_eligible: bool

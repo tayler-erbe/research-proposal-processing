@@ -1,6 +1,6 @@
 # Project status and open items
 
-_Last updated 2026-11-07. Branch: `claude/happy-clarke-plqt0c` (not yet merged to `main`)._
+_Last updated 2026-11-19. Branch: `claude/happy-clarke-plqt0c` (not yet merged to `main`)._
 
 ## Done
 
@@ -26,8 +26,11 @@ SharePoint) under SPA/AITS access controls.
 
 1. **Synthetic data build**, the main next task (`docs/handoffs/codex-sample-pull.md`
    plus the private addendum kept in `storage/handoff/` on the laptop).
-   Not started: no `contracts/`, `synthetic/` or `adapters/` yet. Use the
-   downloaded paired sample and aggregate profiles as ground truth.
+   Framework built on 19 Nov 2026 and tested on an invented placeholder
+   profile: `contracts/`, `adapters/`, `synthetic/` (generator, fidelity,
+   augmentations, leakage), see [`docs/synthetic_data.md`](synthetic_data.md).
+   Still needs the laptop: confirm the mapping, pull the real-shaped sample,
+   build and disclose the real profile (owner review before commit).
 2. **Text extraction of the sample:** the `research_intake/` prototype now does
    this. It is built from the procurement intake prototype's design; see
    `docs/RESEARCH_INTAKE.md`. Tested on synthetic documents with the stub and with local Ollama models

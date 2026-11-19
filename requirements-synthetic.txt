@@ -1,0 +1,3 @@
+# Synthetic data generator, mapping layer and checks (stdlib + PyYAML).
+# pandas/pyarrow are optional; parquet is read when pyarrow is installed.
+pyyaml>=6,<7

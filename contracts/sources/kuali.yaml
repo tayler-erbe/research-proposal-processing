@@ -1,0 +1,119 @@
+# Kuali Research source mapping: real table/column -> canonical field.
+# Table and column names come from queries already in this repository
+# (scripts/build_proposal_spine.py, scripts/build_file_inventory.py,
+# services/*change_detection_service.py). Confirm on the work laptop with
+# scripts/discover_kuali_schema.py before relying on any of it.
+#
+# Each entity is assembled from one or more parts. A part is a set of real
+# tables merged on merge_on (canonical names), plus constant canonical values.
+# Transforms (adapters/mapping.py TRANSFORMS) convert in both directions.
+owner: KUALI
+
+entities:
+  dev_proposal:
+    parts:
+      - merge_on: [dev_proposal_number]
+        tables:
+          EPS_PROPOSAL:
+            PROPOSAL_NUMBER: dev_proposal_number
+            OWNED_BY_UNIT: lead_unit_number
+            SPONSOR_CODE: sponsor_code
+            ACTIVITY_TYPE_CODE: activity_type_code
+            PROPOSAL_TYPE_CODE: proposal_type_code
+            DEADLINE_DATE: deadline_date
+            REQUESTED_START_DATE_INITIAL: requested_start_date
+            REQUESTED_END_DATE_INITIAL: requested_end_date
+          PROPOSAL_ADMIN_DETAILS:
+            DEV_PROPOSAL_NUMBER: dev_proposal_number
+            INST_PROPOSAL_ID: linked_inst_version_id
+            DATE_SUBMITTED_TO_AGENCY: submitted_date
+
+  inst_proposal:
+    parts:
+      - merge_on: [inst_version_id]
+        tables:
+          PROPOSAL:
+            PROPOSAL_ID: inst_version_id
+            PROPOSAL_NUMBER: {field: inst_proposal_number, transform: zero_pad_8}
+            SEQUENCE_NUMBER: sequence_number
+            PROPOSAL_SEQUENCE_STATUS: {field: is_current, transform: active_archived}
+            STATUS_CODE: status_code
+            TOTAL_DIRECT_COST_TOTAL: requested_direct
+            TOTAL_INDIRECT_COST_TOTAL: requested_indirect
+
+  award:
+    parts:
+      - merge_on: [award_version_id]
+        tables:
+          AWARD:
+            AWARD_ID: award_version_id
+            AWARD_NUMBER: award_number
+            SEQUENCE_NUMBER: sequence_number
+            AWARD_SEQUENCE_STATUS: {field: is_current, transform: active_archived}
+            STATUS_CODE: status_code
+            SPONSOR_CODE: sponsor_code
+            LEAD_UNIT_NUMBER: lead_unit_number
+            BEGIN_DATE: begin_date
+
+  proposal_award_link:
+    parts:
+      - merge_on: [funding_link_id]
+        tables:
+          AWARD_FUNDING_PROPOSALS:
+            AWARD_FUNDING_PROPOSAL_ID: funding_link_id
+            PROPOSAL_ID: inst_version_id
+            AWARD_ID: award_version_id
+            ACTIVE: {field: active, transform: y_n}
+
+  sponsor:
+    parts:
+      - merge_on: [sponsor_code]
+        tables:
+          SPONSOR:
+            SPONSOR_CODE: sponsor_code
+            SPONSOR_TYPE_CODE: sponsor_type_code
+
+  document:
+    parts:
+      - merge_on: [dev_proposal_number, module_number]
+        constants: {source: PROPOSAL_NARRATIVE}
+        tables:
+          NARRATIVE:
+            PROPOSAL_NUMBER: dev_proposal_number
+            MODULE_NUMBER: module_number
+            NARRATIVE_TYPE_CODE: attachment_type_code
+          NARRATIVE_ATTACHMENT:
+            PROPOSAL_NUMBER: dev_proposal_number
+            MODULE_NUMBER: module_number
+            FILE_DATA_ID: file_data_id
+            FILE_NAME: file_name
+            CONTENT_TYPE: content_type
+      - merge_on: [attachment_file_id]
+        constants: {source: AWARD}
+        tables:
+          AWARD_ATTACHMENT:
+            AWARD_ID: award_version_id
+            FILE_ID: attachment_file_id
+            TYPE_CODE: attachment_type_code
+          ATTACHMENT_FILE:
+            FILE_ID: attachment_file_id
+            FILE_DATA_ID: file_data_id
+            FILE_NAME: file_name
+            CONTENT_TYPE: content_type
+    # Measured from bytes or inventory columns, not stored as Kuali columns.
+    # The laptop sample supplies them from storage/linkage inventories.
+    measured: [payload_location, detected_format, byte_size, n_pages]
+
+# Code lookups that derive() needs. Values not confirmed on the laptop are
+# marked; until then synthetic data uses its own labels.
+lookups:
+  inst_status_to_outcome:      # confirmed by the data owner (docs/linkage_findings.md)
+    '1': PENDING
+    '2': FUNDED
+    '3': NOT_FUNDED
+    '5': WITHDRAWN
+    '8': VOID
+  campus_unit_prefix:          # from the existing pipeline's unit filters
+    UIUC: ['1', '9U']
+    UIC: ['2']
+  sponsor_type_code_to_label: {}   # OPEN: fill from the SPONSOR_TYPE lookup on the laptop

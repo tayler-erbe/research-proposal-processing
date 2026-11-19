@@ -1,0 +1,8 @@
+# Which data the canonical loader (adapters.mapping.load_canonical) reads.
+# Change data_source, or set the DATA_SOURCE environment variable; no code changes.
+#   synthetic: generator output (folder with canonical/*.csv)
+#   kuali:     real-shaped Kuali tables pulled on the work laptop (local only, never committed)
+data_source: synthetic
+paths:
+  synthetic: storage/synthetic/seed7_scale1
+  kuali: storage/samples/latest/kuali

@@ -1,0 +1,8 @@
+# Pass limits for synthetic.fidelity. Starting values; tighten once the real
+# profile exists and the sampling noise at the chosen scale is known.
+tvd: 0.05                 # total variation distance for categorical and cardinality shares
+conditional_abs: 0.06     # largest absolute gap in funded rate within a sponsor type
+quantile_log_ratio: 0.25  # largest |ln(synthetic / target)| across p10..p90 (about 28%)
+rate_abs: 0.01            # absolute gap for overall rates
+rank_tau_min: 0.6         # funded-rate ranking across sponsor types must broadly agree
+min_group_n: 300          # per-group quantile checks need this many synthetic values; smaller groups are reported, not judged
